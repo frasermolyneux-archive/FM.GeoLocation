@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FM.GeoLocation.Contract", "FM.GeoLocation.Contract\FM.GeoLocation.Contract.csproj", "{012FD7DE-40C6-446F-98F0-EE6A38D1E605}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FM.GeoLocation.Contract", "FM.GeoLocation.Contract\FM.GeoLocation.Contract.csproj", "{012FD7DE-40C6-446F-98F0-EE6A38D1E605}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FM.GeoLocation.FuncApp", "FM.GeoLocation.FuncApp\FM.GeoLocation.FuncApp.csproj", "{4C89DC35-E4B7-451F-BFDE-763309A5AE10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FM.GeoLocation.FuncApp", "FM.GeoLocation.FuncApp\FM.GeoLocation.FuncApp.csproj", "{4C89DC35-E4B7-451F-BFDE-763309A5AE10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FM.GeoLocation.Repositories", "FM.GeoLocation.Repositories\FM.GeoLocation.Repositories.csproj", "{6B438A14-5FE9-45AE-BF96-B7F558C1DD4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FM.GeoLocation.Repositories", "FM.GeoLocation.Repositories\FM.GeoLocation.Repositories.csproj", "{6B438A14-5FE9-45AE-BF96-B7F558C1DD4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

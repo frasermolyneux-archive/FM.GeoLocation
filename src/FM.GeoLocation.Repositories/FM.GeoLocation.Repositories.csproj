@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <UserSecretsId>0fc230c9-82b7-4cf7-b0fd-afc071a12a1f</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MaxMind.GeoIP2" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.6" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+  </ItemGroup>
 
 </Project>
