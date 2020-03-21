@@ -22,7 +22,7 @@ steps:
 - task: CopyFiles@2
   displayName: "Copy terraform to artifact staging directory"
   inputs: 
-    SourceFolder: '$(Build.SourcesDirectory)/Terraform'
+    SourceFolder: '$(Build.SourcesDirectory)/terraform'
     Contents: '**'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/terraform'
 
