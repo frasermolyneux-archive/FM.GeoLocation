@@ -1,0 +1,43 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: ".NET Core Restore"
+  inputs:
+    command: 'restore'
+    projects: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/FM.GeoLocation.FuncApp.csproj'
+    feedsToUse: 'select'
+
+- task: DotNetCoreCLI@2
+  displayName: ".NET Core Build"
+  inputs:
+    command: 'build'
+    projects: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/FM.GeoLocation.FuncApp.csproj'
+    arguments: '-c Release'
+
+- task: CopyFiles@2
+  displayName: "Copy terraform to artifact staging directory"
+  inputs: 
+    SourceFolder: '$(Build.SourcesDirectory)/Terraform'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/terraform'
+
+- task: ArchiveFiles@2
+  displayName: "Package FM.GeoLocation.FuncApp to artifact staging directory"
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/bin/Release/netcoreapp3.0/'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/FM.GeoLocation.FuncApp.zip'
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  displayName: "Publish build artifacts"
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
