@@ -6,6 +6,10 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  versionMajor: 1
+  versionMinor: 1
+
 steps:
 - task: DotNetCoreCLI@2
   displayName: ".NET Core Restore"
@@ -43,6 +47,7 @@ steps:
     command: pack
     packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Client/FM.GeoLocation.Client.csproj'
     packDestination: '$(Build.ArtifactStagingDirectory)'
+    buildProperties: 'VersionSuffix=".$(Build.BuildId)"'
 
 - task: PublishBuildArtifacts@1
   displayName: "Publish build artifacts"
