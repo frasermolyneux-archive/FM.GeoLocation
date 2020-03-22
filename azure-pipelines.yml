@@ -49,12 +49,13 @@ steps:
     packDestination: '$(Build.ArtifactStagingDirectory)'
     buildProperties: 'Version="$(versionMajor).$(versionMinor).$(Build.BuildId)"'
 
-- task: DotNetCoreCLI@2
+- task: NuGetCommand@2
   displayName: 'Push NuGet packages'
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    feedPublish: 'FM.Packages'
+    feedsToUse: 'FM.Packages'
+    nugetConfigPath: '$(Build.WorkingDirectory)/src/NuGet.config'
 
 - task: PublishBuildArtifacts@1
   displayName: "Publish build artifacts"
