@@ -32,7 +32,10 @@ namespace FM.GeoLocation.Client
                 var cachedEntry = Cache.SingleOrDefault(c => c.Address == address);
 
                 if (cachedEntry?.Created > DateTime.UtcNow.AddMinutes(-_config.CacheEntryLifeInMinutes))
+                {
+                    _logger?.Debug("Returning location for {address} from memory cache", address);
                     return cachedEntry.GeoLocationDto;
+                }
 
                 Cache.Remove(cachedEntry);
             }
