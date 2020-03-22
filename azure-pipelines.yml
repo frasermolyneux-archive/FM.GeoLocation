@@ -49,6 +49,14 @@ steps:
     packDestination: '$(Build.ArtifactStagingDirectory)'
     buildProperties: 'Version="$(versionMajor).$(versionMinor).$(Build.BuildId)"'
 
+- task: DotNetCoreCLI@2
+  displayName: "Pack FM.GeoLocation.Contract"
+  inputs:
+    command: pack
+    packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Contract/FM.GeoLocation.Contract.csproj'
+    packDestination: '$(Build.ArtifactStagingDirectory)'
+    buildProperties: 'Version="$(versionMajor).$(versionMinor).$(Build.BuildId)"'
+
 - task: NuGetCommand@2
   displayName: 'NuGet push'
   inputs:
