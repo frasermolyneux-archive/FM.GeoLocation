@@ -50,11 +50,12 @@ steps:
     buildProperties: 'Version="$(versionMajor).$(versionMinor).$(Build.BuildId)"'
 
 - task: NuGetCommand@2
-  displayName: 'Push NuGet packages'
+  displayName: 'NuGet push'
   inputs:
-    command: 'push'
+    command: push
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    publishVstsFeed: 'FM.Packages'
+    publishVstsFeed: 'f6b61452-5280-47a1-b802-b2cfc8630b77/c57e8cd1-2aa2-4c0d-96cb-450405f73d4d'
+    allowPackageConflicts: true
 
 - task: PublishBuildArtifacts@1
   displayName: "Publish build artifacts"
