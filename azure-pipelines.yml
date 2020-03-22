@@ -55,7 +55,7 @@ steps:
     command: push
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
     publishVstsFeed: 'f6b61452-5280-47a1-b802-b2cfc8630b77/c57e8cd1-2aa2-4c0d-96cb-450405f73d4d'
-    allowPackageConflicts: true
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
 - task: PublishBuildArtifacts@1
   displayName: "Publish build artifacts"
