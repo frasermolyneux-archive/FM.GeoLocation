@@ -8,7 +8,7 @@ namespace FM.GeoLocation.Client
         string BaseUrl { get; }
         string ApiKey { get; }
         bool UseMemoryCache { get; }
-        DateTime CacheEntryLife { get; }
+        int CacheEntryLifeInMinutes { get; }
         IEnumerable<TimeSpan> RetryTimespans { get; }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FM.GeoLocation.Contract.Models;
@@ -19,9 +21,21 @@ namespace FM.GeoLocation.Client
             _logger = logger;
         }
 
+        public List<CacheEntry> Cache { get; set; } = new List<CacheEntry>();
+
         public async Task<GeoLocationDto> LookupAddress(string address)
         {
             if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
+
+            if (_config.UseMemoryCache)
+            {
+                var cachedEntry = Cache.SingleOrDefault(c => c.Address == address);
+
+                if (cachedEntry?.Created > DateTime.UtcNow.AddMinutes(-_config.CacheEntryLifeInMinutes))
+                    return cachedEntry.GeoLocationDto;
+
+                Cache.Remove(cachedEntry);
+            }
 
             try
             {
@@ -33,6 +47,8 @@ namespace FM.GeoLocation.Client
                                 retryCount);
                         })
                     .ExecuteAsync(async () => await GetGeoLocationDto(address));
+
+                Cache.Add(new CacheEntry(address, DateTime.UtcNow, locationResult));
 
                 return locationResult;
             }
@@ -56,6 +72,20 @@ namespace FM.GeoLocation.Client
 
                 return deserializeLocation;
             }
+        }
+
+        public class CacheEntry
+        {
+            public CacheEntry(string address, DateTime created, GeoLocationDto geoLocationDto)
+            {
+                Address = address;
+                Created = created;
+                GeoLocationDto = geoLocationDto;
+            }
+
+            public string Address { get; }
+            public DateTime Created { get; }
+            public GeoLocationDto GeoLocationDto { get; }
         }
     }
 }
