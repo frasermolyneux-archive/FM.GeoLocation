@@ -1,9 +1,10 @@
-﻿using FM.GeoLocation.Contract.Models;
+﻿using System.Threading.Tasks;
+using FM.GeoLocation.Contract.Models;
 
 namespace FM.GeoLocation.Client
 {
     public interface IGeoLocationClient
     {
-        GeoLocationDto LookupAddress(string address);
+        Task<GeoLocationDto> LookupAddress(string address);
     }
 }
