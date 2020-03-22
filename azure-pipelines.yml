@@ -1,8 +1,14 @@
 trigger:
-- master
+  branches:
+    include:
+    - '*'
 
 pool:
   vmImage: 'ubuntu-latest'
+
+variables:
+  versionMajor: 1
+  versionMinor: 0
 
 steps:
 - task: DotNetCoreCLI@2
@@ -35,9 +41,25 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/FM.GeoLocation.FuncApp.zip'
     replaceExistingArchive: true
 
+- task: DotNetCoreCLI@2
+  displayName: "Pack FM.GeoLocation.Client"
+  inputs:
+    command: pack
+    packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Client/FM.GeoLocation.Client.csproj'
+    packDestination: '$(Build.ArtifactStagingDirectory)'
+    buildProperties: 'Version="$(versionMajor).$(versionMinor).$(Build.BuildId)"'
+
+- task: NuGetCommand@2
+  displayName: 'NuGet push'
+  inputs:
+    command: push
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    publishVstsFeed: 'f6b61452-5280-47a1-b802-b2cfc8630b77/c57e8cd1-2aa2-4c0d-96cb-450405f73d4d'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
 - task: PublishBuildArtifacts@1
   displayName: "Publish build artifacts"
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathToPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
