@@ -41,7 +41,7 @@ steps:
   displayName: "Pack FM.GeoLocation.Client"
   inputs:
     command: pack
-    packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Client.csproj'    
+    packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Client/FM.GeoLocation.Client.csproj'
     packDestination: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
