@@ -54,8 +54,7 @@ steps:
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    feedsToUse: 'FM.Packages'
-    nugetConfigPath: '$(Build.WorkingDirectory)/src/NuGet.config'
+    publishVstsFeed: 'FM.Packages'
 
 - task: PublishBuildArtifacts@1
   displayName: "Publish build artifacts"
