@@ -35,6 +35,13 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/FM.GeoLocation.FuncApp.zip'
     replaceExistingArchive: true
 
+- task: DotNetCoreCLI@2
+  displayName: "Pack FM.GeoLocation.Client"
+  inputs:
+    command: pack
+    packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Client.csproj'    
+    packDestination: '$(Build.ArtifactStagingDirectory)'
+
 - task: PublishBuildArtifacts@1
   displayName: "Publish build artifacts"
   inputs:
