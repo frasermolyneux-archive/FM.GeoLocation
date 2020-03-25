@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using FM.GeoLocation.Contract.Models;
 using FM.GeoLocation.Repositories;
@@ -8,16 +10,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace FM.GeoLocation.FuncApp
 {
-    public class LookupAddress
+    public class LookupAddressBatch
     {
         private readonly IAddressHelper _addressHelper;
         private readonly ILocationsRepository _locationsRepository;
         private readonly IMaxMindLocationsRepository _maxMindLocationsRepository;
 
-        public LookupAddress(
+        public LookupAddressBatch(
             IMaxMindLocationsRepository maxMindLocationsRepository,
             ILocationsRepository locationsRepository,
             IAddressHelper addressHelper)
@@ -28,38 +31,55 @@ namespace FM.GeoLocation.FuncApp
             _addressHelper = addressHelper ?? throw new ArgumentNullException(nameof(addressHelper));
         }
 
-        [FunctionName("LookupAddress")]
+        [FunctionName("LookupAddressBatch")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]
             HttpRequest req,
             ILogger log)
         {
-            string address = req.Query["address"];
+            var addressData = await new StreamReader(req.Body).ReadToEndAsync();
 
-            if (string.IsNullOrWhiteSpace(address))
+            if (string.IsNullOrWhiteSpace(addressData))
                 return new BadRequestObjectResult(new
-                    {error = "true", message = "An address parameter is required for this function"});
+                    {error = "true", message = "A request body is required for this function"});
 
-            if (!_addressHelper.ConvertAddress(address, out var validatedAddress))
-                return new BadRequestObjectResult(new {error = "true", message = "Invalid ip address or hostname"});
-
-            log.LogInformation($"Processing request for address {validatedAddress}");
-
-            GeoLocationEntity location;
+            List<string> addresses;
             try
             {
-                location = await _locationsRepository.GetGeoLocationEntity(validatedAddress) ??
-                           await _maxMindLocationsRepository.GetGeoLocationEntity(validatedAddress);
+                addresses = JsonConvert.DeserializeObject<List<string>>(addressData);
             }
             catch (Exception ex)
             {
-                log.LogWarning(ex, "Error retrieving geo location data from downstream services for {address}", address);
+                log.LogWarning(ex, "Could not deserialize request body");
+
                 return new BadRequestObjectResult(new
-                    {error = "true", message = "Error retrieving geo location data from downstream services"});
+                    {error = "true", message = "Unable to deserialize request body"});
             }
 
-            if (location != null)
-                return new OkObjectResult(new GeoLocationDto
+            var results = new List<GeoLocationDto>();
+
+            foreach (var address in addresses)
+            {
+                if (!_addressHelper.ConvertAddress(address, out var validatedAddress))
+                    results.Add(null);
+
+                log.LogInformation($"Processing request for address {validatedAddress}");
+
+                GeoLocationEntity location;
+                try
+                {
+                    location = await _locationsRepository.GetGeoLocationEntity(validatedAddress) ??
+                               await _maxMindLocationsRepository.GetGeoLocationEntity(validatedAddress);
+                }
+                catch (Exception ex)
+                {
+                    log.LogWarning(ex, "Error retrieving geo location data from downstream services for {address}",
+                        address);
+                    results.Add(null);
+                    continue;
+                }
+
+                results.Add(new GeoLocationDto
                 {
                     Address = address,
                     TranslatedAddress = location.RowKey,
@@ -68,9 +88,9 @@ namespace FM.GeoLocation.FuncApp
                     Latitude = location.Latitude,
                     Longitude = location.Longitude
                 });
+            }
 
-            return new BadRequestObjectResult(
-                new {error = "true", message = "Could not determine location for address"});
+            return new OkObjectResult(results);
         }
     }
 }

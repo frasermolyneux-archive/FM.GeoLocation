@@ -31,8 +31,8 @@ resource "azurerm_function_app" "geolocation-function-app" {
     version = "~3"
 
     app_settings = {
-        "TableStorageConnectionString" = "${azurerm_storage_account.geolocation-storage.primary_connection_string}"
-        "MaxMindUserId" = "${var.MaxMindUserId}"
-        "MaxMindApiKey" = "${var.MaxMindApiKey}"
+        "Storage:TableStorageConnectionString" = "${azurerm_storage_account.geolocation-storage.primary_connection_string}"
+        "MaxMind:UserId" = "${var.MaxMindUserId}"
+        "MaxMind:ApiKey" = "${var.MaxMindApiKey}"
     }
 }

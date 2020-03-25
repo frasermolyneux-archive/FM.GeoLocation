@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace FM.GeoLocation.Repositories
 {
@@ -11,18 +11,23 @@ namespace FM.GeoLocation.Repositories
 
     public class MaxMindApiConfiguration : IMaxMindApiConfiguration
     {
+        private readonly IConfiguration _configuration;
+
+        public MaxMindApiConfiguration(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public int UserId
         {
             get
             {
-                var userId = ConfigurationManager.AppSettings["MaxMindUserId"] ??
-                             Environment.GetEnvironmentVariable("MaxMindUserId");
+                var userId = _configuration["MaxMind:UserId"];
 
                 return Convert.ToInt32(userId);
             }
         }
 
-        public string ApiKey => ConfigurationManager.AppSettings["MaxMindApiKey"] ??
-                                Environment.GetEnvironmentVariable("MaxMindApiKey");
+        public string ApiKey => _configuration["MaxMind:ApiKey"];
     }
 }
