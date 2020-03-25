@@ -62,6 +62,29 @@ namespace FM.GeoLocation.Client
             }
         }
 
+        public async Task<List<GeoLocationDto>> LookupAddressBatch(List<string> addresses)
+        {
+            try
+            {
+                var locationResult = await Policy.Handle<Exception>()
+                    .WaitAndRetryAsync(_config.RetryTimespans,
+                        (result, timeSpan, retryCount, context) =>
+                        {
+                            _logger?.Warning("Failed to get locations for {addresses} - retry count: {count}",
+                                addresses,
+                                retryCount);
+                        })
+                    .ExecuteAsync(async () => await GetGeoLocationBatchDto(addresses));
+
+                return locationResult;
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error(ex, "Failed to get locations for addresses {addresses}", addresses);
+                throw;
+            }
+        }
+
         private async Task<GeoLocationDto> GetGeoLocationDto(string address)
         {
             using (var wc = new WebClient())
@@ -74,6 +97,23 @@ namespace FM.GeoLocation.Client
                 _logger?.Debug("{@location} retrieved for {address}", deserializeLocation, address);
 
                 return deserializeLocation;
+            }
+        }
+
+        private async Task<List<GeoLocationDto>> GetGeoLocationBatchDto(List<string> addresses)
+        {
+            using (var wc = new WebClient())
+            {
+                var addressesJson = JsonConvert.SerializeObject(addresses);
+
+                var locationsString =
+                    await wc.UploadStringTaskAsync(
+                        $"{_config.BaseUrl}/api/LookupAddressBatch?code={_config.ApiKey}", addressesJson);
+                var deserializeLocations = JsonConvert.DeserializeObject<List<GeoLocationDto>>(locationsString);
+
+                _logger?.Debug("{@locations} retrieved for {addresses}", deserializeLocations, addresses);
+
+                return deserializeLocations;
             }
         }
 
