@@ -11,13 +11,9 @@ namespace FM.GeoLocation.Contract.Models
         public string ContinentCode { get; set; }
         public string ContinentName { get; set; }
         public string CountryCode { get; set; }
-        [Obsolete("Use CountryCode property instead")]
-        public string Country => CountryCode;
         public string CountryName { get; set; }
         public bool IsEuropeanUnion { get; set; }
         public string CityName { get; set; }
-        [Obsolete("Use CityName property instead")]
-        public string City => CityName;
         public string PostalCode { get; set; }
         public string RegisteredCountry { get; set; }
         public string RepresentedCountry { get; set; }
