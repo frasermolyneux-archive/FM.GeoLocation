@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using FM.GeoLocation.Client;
 using FM.GeoLocation.Contract.Models;
 using FM.GeoLocation.Repositories;
 using FM.GeoLocation.Repositories.Models;
@@ -13,19 +14,19 @@ namespace FM.GeoLocation.FuncApp
 {
     public class LookupAddress
     {
-        private readonly IAddressHelper _addressHelper;
+        private readonly IAddressValidator _addressValidator;
         private readonly ILocationsRepository _locationsRepository;
         private readonly IMaxMindLocationsRepository _maxMindLocationsRepository;
 
         public LookupAddress(
             IMaxMindLocationsRepository maxMindLocationsRepository,
             ILocationsRepository locationsRepository,
-            IAddressHelper addressHelper)
+            IAddressValidator addressValidator)
         {
             _maxMindLocationsRepository = maxMindLocationsRepository ??
                                           throw new ArgumentNullException(nameof(maxMindLocationsRepository));
             _locationsRepository = locationsRepository ?? throw new ArgumentNullException(nameof(locationsRepository));
-            _addressHelper = addressHelper ?? throw new ArgumentNullException(nameof(addressHelper));
+            _addressValidator = addressValidator ?? throw new ArgumentNullException(nameof(addressValidator));
         }
 
         [FunctionName("LookupAddress")]
@@ -40,7 +41,7 @@ namespace FM.GeoLocation.FuncApp
                 return new BadRequestObjectResult(new
                     {error = "true", message = "An address parameter is required for this function"});
 
-            if (!_addressHelper.ConvertAddress(address, out var validatedAddress))
+            if (!_addressValidator.ConvertAddress(address, out var validatedAddress))
                 return new BadRequestObjectResult(new {error = "true", message = "Invalid ip address or hostname"});
 
             log.LogInformation($"Processing request for address {validatedAddress}");

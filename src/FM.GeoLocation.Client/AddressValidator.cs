@@ -1,14 +1,9 @@
 ﻿using System.Linq;
 using System.Net;
 
-namespace FM.GeoLocation.FuncApp
+namespace FM.GeoLocation.Client
 {
-    public interface IAddressHelper
-    {
-        bool ConvertAddress(string address, out string validatedAddress);
-    }
-
-    public class AddressHelper : IAddressHelper
+    public class AddressValidator : IAddressValidator
     {
         public bool ConvertAddress(string address, out string validatedAddress)
         {

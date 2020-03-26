@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using FM.GeoLocation.Client;
 using FM.GeoLocation.FuncApp;
 using FM.GeoLocation.Repositories;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -28,7 +29,7 @@ namespace FM.GeoLocation.FuncApp
             builder.Services.AddSingleton<IPartitionKeyHelper, PartitionKeyHelper>();
             builder.Services.AddSingleton<IMaxMindApiConfiguration, MaxMindApiConfiguration>();
             builder.Services.AddSingleton<IMaxMindLocationsRepository, MaxMindLocationsRepository>();
-            builder.Services.AddSingleton<IAddressHelper, AddressHelper>();
+            builder.Services.AddSingleton<IAddressValidator, AddressValidator>();
         }
     }
 }

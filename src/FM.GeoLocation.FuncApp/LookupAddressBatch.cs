@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using FM.GeoLocation.Client;
 using FM.GeoLocation.Contract.Models;
 using FM.GeoLocation.Repositories;
 using FM.GeoLocation.Repositories.Models;
@@ -16,19 +17,19 @@ namespace FM.GeoLocation.FuncApp
 {
     public class LookupAddressBatch
     {
-        private readonly IAddressHelper _addressHelper;
+        private readonly IAddressValidator _addressValidator;
         private readonly ILocationsRepository _locationsRepository;
         private readonly IMaxMindLocationsRepository _maxMindLocationsRepository;
 
         public LookupAddressBatch(
             IMaxMindLocationsRepository maxMindLocationsRepository,
             ILocationsRepository locationsRepository,
-            IAddressHelper addressHelper)
+            IAddressValidator addressValidator)
         {
             _maxMindLocationsRepository = maxMindLocationsRepository ??
                                           throw new ArgumentNullException(nameof(maxMindLocationsRepository));
             _locationsRepository = locationsRepository ?? throw new ArgumentNullException(nameof(locationsRepository));
-            _addressHelper = addressHelper ?? throw new ArgumentNullException(nameof(addressHelper));
+            _addressValidator = addressValidator ?? throw new ArgumentNullException(nameof(addressValidator));
         }
 
         [FunctionName("LookupAddressBatch")]
@@ -60,7 +61,7 @@ namespace FM.GeoLocation.FuncApp
 
             foreach (var address in addresses)
             {
-                if (!_addressHelper.ConvertAddress(address, out var validatedAddress))
+                if (!_addressValidator.ConvertAddress(address, out var validatedAddress))
                     results.Add(null);
 
                 log.LogInformation($"Processing request for address {validatedAddress}");
