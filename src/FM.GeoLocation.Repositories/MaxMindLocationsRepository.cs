@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FM.GeoLocation.Repositories.Models;
 using MaxMind.GeoIP2;
@@ -33,13 +34,46 @@ namespace FM.GeoLocation.Repositories
             {
                 var lookupResult = reader.City(address);
 
-                return _locationsRepository.StoreEntity(new GeoLocationEntity(
-                    _partitionKeyHelper.GetPartitionKeyFromAddress(address),
-                    address,
-                    (double) lookupResult.Location.Latitude,
-                    (double) lookupResult.Location.Longitude,
-                    lookupResult.Country.IsoCode,
-                    lookupResult.City.Name));
+                var traits = new Dictionary<string, string>
+                {
+                    {"AutonomousSystemNumber", lookupResult.Traits?.AutonomousSystemNumber.ToString()},
+                    {"AutonomousSystemOrganization", lookupResult.Traits?.AutonomousSystemOrganization},
+                    {"ConnectionType", lookupResult.Traits?.ConnectionType},
+                    {"Domain", lookupResult.Traits?.Domain},
+                    {"IPAddress", lookupResult.Traits?.IPAddress},
+                    {"IsAnonymous", lookupResult.Traits?.IsAnonymous.ToString()},
+                    {"IsAnonymousVpn", lookupResult.Traits?.IsAnonymousVpn.ToString()},
+                    {"IsHostingProvider", lookupResult.Traits?.IsHostingProvider.ToString()},
+                    {"IsLegitimateProxy", lookupResult.Traits?.IsLegitimateProxy.ToString()},
+                    {"IsPublicProxy", lookupResult.Traits?.IsPublicProxy.ToString()},
+                    {"IsTorExitNode", lookupResult.Traits?.IsTorExitNode.ToString()},
+                    {"Isp", lookupResult.Traits?.Isp},
+                    {"Organization", lookupResult.Traits?.Organization},
+                    {"StaticIPScore", lookupResult.Traits?.StaticIPScore.ToString()},
+                    {"UserCount", lookupResult.Traits?.UserCount.ToString()},
+                    {"UserType", lookupResult.Traits?.UserType}
+                };
+
+                var geoLocationEntity =
+                    new GeoLocationEntity(_partitionKeyHelper.GetPartitionKeyFromAddress(address), address)
+                    {
+                        ContinentCode = lookupResult.Continent?.Code,
+                        ContinentName = lookupResult.Continent?.Name,
+                        CountryCode = lookupResult.Country?.IsoCode,
+                        CountryName = lookupResult.Country?.Name,
+                        IsEuropeanUnion = lookupResult.Country?.IsInEuropeanUnion ?? false,
+                        CityName = lookupResult.City?.Name,
+                        PostalCode = lookupResult.Postal?.Code,
+                        RegisteredCountry = lookupResult.RegisteredCountry?.IsoCode,
+                        RepresentedCountry = lookupResult.RepresentedCountry?.IsoCode,
+                        Latitude = lookupResult.Location?.Latitude ?? 0.0,
+                        Longitude = lookupResult.Location?.Longitude ?? 0.0,
+                        AccuracyRadius = lookupResult.Location?.AccuracyRadius ?? 0,
+                        Timezone = lookupResult.Location?.TimeZone,
+                        Traits = traits
+                    };
+
+                return _locationsRepository.StoreEntity(geoLocationEntity);
             }
         }
     }

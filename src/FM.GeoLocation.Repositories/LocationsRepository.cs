@@ -29,7 +29,8 @@ namespace FM.GeoLocation.Repositories
         {
             var storageAccount = CloudStorageAccount.Parse(_tableStorageConfiguration.TableStorageConnectionString);
             var tableClient = storageAccount.CreateCloudTableClient();
-            var tableReference = tableClient.GetTableReference("locations");
+            var tableReference = tableClient.GetTableReference("locationsv2");
+            await tableReference.CreateIfNotExistsAsync();
 
             var insertOrReplaceOperation = TableOperation.InsertOrReplace(entity);
 
@@ -43,7 +44,8 @@ namespace FM.GeoLocation.Repositories
         {
             var storageAccount = CloudStorageAccount.Parse(_tableStorageConfiguration.TableStorageConnectionString);
             var tableClient = storageAccount.CreateCloudTableClient();
-            var tableReference = tableClient.GetTableReference("locations");
+            var tableReference = tableClient.GetTableReference("locationsv2");
+            await tableReference.CreateIfNotExistsAsync();
 
             var retrieveTableOperation =
                 TableOperation.Retrieve(_partitionKeyHelper.GetPartitionKeyFromAddress(address), address);

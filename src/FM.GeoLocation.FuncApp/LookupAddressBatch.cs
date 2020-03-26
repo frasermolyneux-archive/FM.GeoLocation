@@ -84,10 +84,21 @@ namespace FM.GeoLocation.FuncApp
                 {
                     Address = address,
                     TranslatedAddress = location.RowKey,
-                    Country = location.Country,
-                    City = location.City,
+
+                    ContinentCode = location.ContinentCode,
+                    ContinentName = location.ContinentName,
+                    CountryCode = location.CountryCode,
+                    CountryName = location.CountryName,
+                    IsEuropeanUnion = location.IsEuropeanUnion,
+                    CityName = location.CityName,
+                    PostalCode = location.PostalCode,
+                    RegisteredCountry = location.RegisteredCountry,
+                    RepresentedCountry = location.RepresentedCountry,
                     Latitude = location.Latitude,
-                    Longitude = location.Longitude
+                    Longitude = location.Longitude,
+                    AccuracyRadius = location.AccuracyRadius,
+                    Timezone = location.Timezone,
+                    Traits = location.Traits
                 });
             }
 
