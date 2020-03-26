@@ -114,7 +114,7 @@ namespace FM.GeoLocation.Client
             using (var client = new HttpClient())
             {
                 var response =
-                    await client.PostAsync($"{_config.BaseUrl}/api/LookupAddressBatch?code={_config.ApiKey}", null);
+                    await client.PostAsync($"{_config.BaseUrl}/api/LookupAddress?code={_config.ApiKey}&address={address}", null);
 
                 var responseText = await response.Content.ReadAsStringAsync();
                 var deserializeResponse = JsonConvert.DeserializeObject<GeoLocationDto>(responseText);
