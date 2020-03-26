@@ -16,15 +16,11 @@ namespace FM.GeoLocation.FuncApp
     {
         private readonly IAddressValidator _addressValidator;
         private readonly ILocationsRepository _locationsRepository;
-        private readonly IMaxMindLocationsRepository _maxMindLocationsRepository;
 
         public RemoveDataForAddress(
-            IMaxMindLocationsRepository maxMindLocationsRepository,
             ILocationsRepository locationsRepository,
             IAddressValidator addressValidator)
         {
-            _maxMindLocationsRepository = maxMindLocationsRepository ??
-                                          throw new ArgumentNullException(nameof(maxMindLocationsRepository));
             _locationsRepository = locationsRepository ?? throw new ArgumentNullException(nameof(locationsRepository));
             _addressValidator = addressValidator ?? throw new ArgumentNullException(nameof(addressValidator));
         }
@@ -68,6 +64,7 @@ namespace FM.GeoLocation.FuncApp
 
             await _locationsRepository.RemoveGeoLocationEntity(location);
 
+            model.RemovalSuccess = true;
             model.RemovalStatus = "The address and geo-data has been purged from the GeoLocation database";
             return new OkObjectResult(model);
         }
