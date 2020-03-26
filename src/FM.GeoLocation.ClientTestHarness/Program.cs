@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using FM.GeoLocation.Client;
@@ -19,7 +20,10 @@ namespace FM.GeoLocation.ClientTestHarness
             var geoLocationClientConfiguration = new GeoLocationClientConfiguration(config);
             var geoLocationClient = new GeoLocationClient(geoLocationClientConfiguration, null);
 
-            await geoLocationClient.LookupAddress("162.25.35.21");
+            var value = await geoLocationClient.LookupAddress("162.65.65.65");
+
+            var addresses = new string[] {"google.com", "sky.com", "bbc.co.uk"};
+            var batchValue = await  geoLocationClient.LookupAddressBatch(new List<string>(addresses));
 
             Console.ReadKey();
         }

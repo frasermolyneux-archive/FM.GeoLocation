@@ -33,24 +33,19 @@ namespace FM.GeoLocation.FuncApp
         {
             string address = req.Query["address"];
 
-            var model = new RemoveDataResponse
-            {
-                Address = address
-            };
+            var model = new RemoveDataForAddressResponse();
 
             if (string.IsNullOrWhiteSpace(address))
             {
-                model.RemovalStatus = "An address query parameter is required for this function";
+                model.ErrorMessage = "You must provide an address to query against. IP or DNS is acceptable.";
                 return new BadRequestObjectResult(model);
             }
 
             if (!_addressValidator.ConvertAddress(address, out var validatedAddress))
             {
-                model.RemovalStatus = "The address passed in is invalid, e.g. not an IP or domain";
+                model.ErrorMessage = "The address provided is invalid. IP or DNS is acceptable.";
                 return new BadRequestObjectResult(model);
             }
-
-            model.TranslatedAddress = validatedAddress;
 
             log.LogInformation($"Processing purge request for address {validatedAddress}");
 
@@ -58,14 +53,11 @@ namespace FM.GeoLocation.FuncApp
 
             if (location == null)
             {
-                model.RemovalStatus = "The address passed in could not be found within the GeoLocation database";
+                model.ErrorMessage = "The address passed in could not be found within the GeoLocation database";
                 return new OkObjectResult(model);
             }
 
             await _locationsRepository.RemoveGeoLocationEntity(location);
-
-            model.RemovalSuccess = true;
-            model.RemovalStatus = "The address and geo-data has been purged from the GeoLocation database";
             return new OkObjectResult(model);
         }
     }

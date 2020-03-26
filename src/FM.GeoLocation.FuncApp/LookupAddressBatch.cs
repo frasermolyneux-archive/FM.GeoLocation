@@ -6,6 +6,7 @@ using FM.GeoLocation.Client;
 using FM.GeoLocation.Contract.Models;
 using FM.GeoLocation.Repositories;
 using FM.GeoLocation.Repositories.Models;
+using MaxMind.GeoIP2.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -40,9 +41,13 @@ namespace FM.GeoLocation.FuncApp
         {
             var addressData = await new StreamReader(req.Body).ReadToEndAsync();
 
+            var model = new LookupAddressBatchResponse();
+
             if (string.IsNullOrWhiteSpace(addressData))
-                return new BadRequestObjectResult(new
-                    {error = "true", message = "A request body is required for this function"});
+            {
+                model.ErrorMessage = "You must provide a line separated list of addresses. IP or DNS is acceptable.";
+                return new BadRequestObjectResult(model);
+            }
 
             List<string> addresses;
             try
@@ -53,16 +58,31 @@ namespace FM.GeoLocation.FuncApp
             {
                 log.LogWarning(ex, "Could not deserialize request body");
 
-                return new BadRequestObjectResult(new
-                    {error = "true", message = "Unable to deserialize request body"});
+                model.ErrorMessage =
+                    "Invalid data, you must provide a line separated list of addresses. IP or DNS is acceptable.";
+                return new BadRequestObjectResult(model);
             }
 
-            var results = new List<GeoLocationDto>();
+            model.LookupAddressResponses = new List<LookupAddressResponse>();
 
             foreach (var address in addresses)
             {
+                var addressModel = new LookupAddressResponse();
+
+                if (string.IsNullOrWhiteSpace(address))
+                {
+                    addressModel.ErrorMessage =
+                        "You must provide an address to query against. IP or DNS is acceptable.";
+                    model.LookupAddressResponses.Add(addressModel);
+                    continue;
+                }
+
                 if (!_addressValidator.ConvertAddress(address, out var validatedAddress))
-                    results.Add(null);
+                {
+                    addressModel.ErrorMessage = "The address provided is invalid. IP or DNS is acceptable.";
+                    model.LookupAddressResponses.Add(addressModel);
+                    continue;
+                }
 
                 log.LogInformation($"Processing request for address {validatedAddress}");
 
@@ -72,37 +92,60 @@ namespace FM.GeoLocation.FuncApp
                     location = await _locationsRepository.GetGeoLocationEntity(validatedAddress) ??
                                await _maxMindLocationsRepository.GetGeoLocationEntity(validatedAddress);
                 }
+                catch (AddressNotFoundException ex)
+                {
+                    addressModel.ErrorMessage = ex.Message;
+                    model.LookupAddressResponses.Add(addressModel);
+                    continue;
+                }
+                catch (GeoIP2Exception ex)
+                {
+                    addressModel.ErrorMessage = ex.Message;
+                    model.LookupAddressResponses.Add(addressModel);
+                    continue;
+                }
                 catch (Exception ex)
                 {
-                    log.LogWarning(ex, "Error retrieving geo location data from downstream services for {address}",
+                    log.LogError(ex, "Error retrieving geo location data from downstream services for {address}.",
                         address);
-                    results.Add(null);
+
+                    addressModel.ErrorMessage =
+                        "There was a problem retrieving the data from the downstream MaxMind service.";
+                    model.LookupAddressResponses.Add(addressModel);
                     continue;
                 }
 
-                results.Add(new GeoLocationDto
+                if (location != null)
                 {
-                    Address = address,
-                    TranslatedAddress = location.RowKey,
+                    addressModel.GeoLocationDto = new GeoLocationDto
+                    {
+                        Address = address,
+                        TranslatedAddress = location.RowKey,
 
-                    ContinentCode = location.ContinentCode,
-                    ContinentName = location.ContinentName,
-                    CountryCode = location.CountryCode,
-                    CountryName = location.CountryName,
-                    IsEuropeanUnion = location.IsEuropeanUnion,
-                    CityName = location.CityName,
-                    PostalCode = location.PostalCode,
-                    RegisteredCountry = location.RegisteredCountry,
-                    RepresentedCountry = location.RepresentedCountry,
-                    Latitude = location.Latitude,
-                    Longitude = location.Longitude,
-                    AccuracyRadius = location.AccuracyRadius,
-                    Timezone = location.Timezone,
-                    Traits = location.Traits
-                });
+                        ContinentCode = location.ContinentCode,
+                        ContinentName = location.ContinentName,
+                        CountryCode = location.CountryCode,
+                        CountryName = location.CountryName,
+                        IsEuropeanUnion = location.IsEuropeanUnion,
+                        CityName = location.CityName,
+                        PostalCode = location.PostalCode,
+                        RegisteredCountry = location.RegisteredCountry,
+                        RepresentedCountry = location.RepresentedCountry,
+                        Latitude = location.Latitude,
+                        Longitude = location.Longitude,
+                        AccuracyRadius = location.AccuracyRadius,
+                        Timezone = location.Timezone,
+                        Traits = location.Traits
+                    };
+                    model.LookupAddressResponses.Add(addressModel);
+                    continue;
+                }
+
+                addressModel.ErrorMessage = "There was a problem looking up the geo-data for the address";
+                model.LookupAddressResponses.Add(addressModel);
             }
 
-            return new OkObjectResult(results);
+            return new OkObjectResult(model);
         }
     }
 }

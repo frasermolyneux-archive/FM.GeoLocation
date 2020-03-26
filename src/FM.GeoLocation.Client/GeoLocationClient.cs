@@ -23,7 +23,7 @@ namespace FM.GeoLocation.Client
 
         public List<CacheEntry> Cache { get; set; } = new List<CacheEntry>();
 
-        public async Task<GeoLocationDto> LookupAddress(string address)
+        public async Task<LookupAddressResponse> LookupAddress(string address)
         {
             if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
 
@@ -34,7 +34,7 @@ namespace FM.GeoLocation.Client
                 if (cachedEntry?.Created > DateTime.UtcNow.AddMinutes(-_config.CacheEntryLifeInMinutes))
                 {
                     _logger?.Debug("Returning location for {address} from memory cache", address);
-                    return cachedEntry.GeoLocationDto;
+                    return cachedEntry.LookupAddressResponse;
                 }
 
                 Cache.Remove(cachedEntry);
@@ -62,7 +62,7 @@ namespace FM.GeoLocation.Client
             }
         }
 
-        public async Task<List<GeoLocationDto>> LookupAddressBatch(List<string> addresses)
+        public async Task<LookupAddressBatchResponse> LookupAddressBatch(List<string> addresses)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace FM.GeoLocation.Client
             }
         }
 
-        public async Task<RemoveDataResponse> RemoveDataForAddress(string address)
+        public async Task<RemoveDataForAddressResponse> RemoveDataForAddress(string address)
         {
             if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
 
@@ -109,15 +109,16 @@ namespace FM.GeoLocation.Client
             }
         }
 
-        private async Task<GeoLocationDto> GetGeoLocationDto(string address)
+        private async Task<LookupAddressResponse> GetGeoLocationDto(string address)
         {
             using (var client = new HttpClient())
             {
                 var response =
-                    await client.PostAsync($"{_config.BaseUrl}/api/LookupAddress?code={_config.ApiKey}&address={address}", null);
+                    await client.PostAsync(
+                        $"{_config.BaseUrl}/api/LookupAddress?code={_config.ApiKey}&address={address}", null);
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                var deserializeResponse = JsonConvert.DeserializeObject<GeoLocationDto>(responseText);
+                var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressResponse>(responseText);
 
                 _logger?.Debug("{@location} retrieved for {address}", deserializeResponse, address);
 
@@ -125,7 +126,7 @@ namespace FM.GeoLocation.Client
             }
         }
 
-        private async Task<List<GeoLocationDto>> GetGeoLocationBatchDto(List<string> addresses)
+        private async Task<LookupAddressBatchResponse> GetGeoLocationBatchDto(List<string> addresses)
         {
             using (var client = new HttpClient())
             {
@@ -136,7 +137,7 @@ namespace FM.GeoLocation.Client
                         new StringContent(addressesJson));
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                var deserializeResponse = JsonConvert.DeserializeObject<List<GeoLocationDto>>(responseText);
+                var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressBatchResponse>(responseText);
 
                 _logger?.Debug("{@locations} retrieved for {addresses}", deserializeResponse, addresses);
 
@@ -144,7 +145,7 @@ namespace FM.GeoLocation.Client
             }
         }
 
-        private async Task<RemoveDataResponse> RemoveAddressData(string address)
+        private async Task<RemoveDataForAddressResponse> RemoveAddressData(string address)
         {
             using (var client = new HttpClient())
             {
@@ -153,7 +154,7 @@ namespace FM.GeoLocation.Client
                         $"{_config.BaseUrl}/api/RemoveDataForAddress?code={_config.ApiKey}&address={address}");
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                var deserializeResponse = JsonConvert.DeserializeObject<RemoveDataResponse>(responseText);
+                var deserializeResponse = JsonConvert.DeserializeObject<RemoveDataForAddressResponse>(responseText);
 
                 _logger?.Debug("{@location} retrieved for {address}", deserializeResponse, address);
 
@@ -163,16 +164,16 @@ namespace FM.GeoLocation.Client
 
         public class CacheEntry
         {
-            public CacheEntry(string address, DateTime created, GeoLocationDto geoLocationDto)
+            public CacheEntry(string address, DateTime created, LookupAddressResponse lookupAddressResponse)
             {
                 Address = address;
                 Created = created;
-                GeoLocationDto = geoLocationDto;
+                LookupAddressResponse = lookupAddressResponse;
             }
 
             public string Address { get; }
             public DateTime Created { get; }
-            public GeoLocationDto GeoLocationDto { get; }
+            public LookupAddressResponse LookupAddressResponse { get; }
         }
     }
 }

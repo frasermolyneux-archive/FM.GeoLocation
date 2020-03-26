@@ -4,6 +4,7 @@ using FM.GeoLocation.Client;
 using FM.GeoLocation.Contract.Models;
 using FM.GeoLocation.Repositories;
 using FM.GeoLocation.Repositories.Models;
+using MaxMind.GeoIP2.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -37,12 +38,19 @@ namespace FM.GeoLocation.FuncApp
         {
             string address = req.Query["address"];
 
+            var model = new LookupAddressResponse();
+
             if (string.IsNullOrWhiteSpace(address))
-                return new BadRequestObjectResult(new
-                    {error = "true", message = "An address parameter is required for this function"});
+            {
+                model.ErrorMessage = "You must provide an address to query against. IP or DNS is acceptable.";
+                return new BadRequestObjectResult(model);
+            }
 
             if (!_addressValidator.ConvertAddress(address, out var validatedAddress))
-                return new BadRequestObjectResult(new {error = "true", message = "Invalid ip address or hostname"});
+            {
+                model.ErrorMessage = "The address provided is invalid. IP or DNS is acceptable.";
+                return new BadRequestObjectResult(model);
+            }
 
             log.LogInformation($"Processing request for address {validatedAddress}");
 
@@ -52,19 +60,31 @@ namespace FM.GeoLocation.FuncApp
                 location = await _locationsRepository.GetGeoLocationEntity(validatedAddress) ??
                            await _maxMindLocationsRepository.GetGeoLocationEntity(validatedAddress);
             }
+            catch (AddressNotFoundException ex)
+            {
+                model.ErrorMessage = ex.Message;
+                return new BadRequestObjectResult(model);
+            }
+            catch (GeoIP2Exception ex)
+            {
+                model.ErrorMessage = ex.Message;
+                return new BadRequestObjectResult(model);
+            }
             catch (Exception ex)
             {
-                log.LogWarning(ex, "Error retrieving geo location data from downstream services for {address}", address);
-                return new BadRequestObjectResult(new
-                    {error = "true", message = "Error retrieving geo location data from downstream services"});
+                log.LogError(ex, "Error retrieving geo location data from downstream services for {address}.", address);
+
+                model.ErrorMessage = "There was a problem retrieving the data from the downstream MaxMind service.";
+                return new BadRequestObjectResult(model);
             }
 
             if (location != null)
-                return new OkObjectResult(new GeoLocationDto
+            {
+                model.GeoLocationDto = new GeoLocationDto
                 {
                     Address = address,
                     TranslatedAddress = location.RowKey,
-                    
+
                     ContinentCode = location.ContinentCode,
                     ContinentName = location.ContinentName,
                     CountryCode = location.CountryCode,
@@ -79,10 +99,13 @@ namespace FM.GeoLocation.FuncApp
                     AccuracyRadius = location.AccuracyRadius,
                     Timezone = location.Timezone,
                     Traits = location.Traits
-                });
+                };
 
-            return new BadRequestObjectResult(
-                new {error = "true", message = "Could not determine location for address"});
+                return new OkObjectResult(model);
+            }
+
+            model.ErrorMessage = "There was a problem looking up the geo-data for the address";
+            return new BadRequestObjectResult(model);
         }
     }
 }
