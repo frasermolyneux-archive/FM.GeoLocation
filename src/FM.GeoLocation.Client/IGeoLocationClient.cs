@@ -8,5 +8,6 @@ namespace FM.GeoLocation.Client
     {
         Task<GeoLocationDto> LookupAddress(string address);
         Task<List<GeoLocationDto>> LookupAddressBatch(List<string> addresses);
+        Task<RemoveDataResponse> RemoveDataForAddress(string address);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using FM.GeoLocation.Contract.Models;
 using Newtonsoft.Json;
@@ -85,35 +85,79 @@ namespace FM.GeoLocation.Client
             }
         }
 
+        public async Task<RemoveDataResponse> RemoveDataForAddress(string address)
+        {
+            if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
+
+            try
+            {
+                var removeDataResponse = await Policy.Handle<Exception>()
+                    .WaitAndRetryAsync(_config.RetryTimespans,
+                        (result, timeSpan, retryCount, context) =>
+                        {
+                            _logger?.Warning("Failed remove data for {address} - retry count: {count}", address,
+                                retryCount);
+                        })
+                    .ExecuteAsync(async () => await RemoveAddressData(address));
+
+                return removeDataResponse;
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error(ex, "Failed to remove data for address {address}", address);
+                throw;
+            }
+        }
+
         private async Task<GeoLocationDto> GetGeoLocationDto(string address)
         {
-            using (var wc = new WebClient())
+            using (var client = new HttpClient())
             {
-                var locationString =
-                    await wc.DownloadStringTaskAsync(
-                        $"{_config.BaseUrl}/api/LookupAddress?code={_config.ApiKey}&address={address}");
-                var deserializeLocation = JsonConvert.DeserializeObject<GeoLocationDto>(locationString);
+                var response =
+                    await client.PostAsync($"{_config.BaseUrl}/api/LookupAddressBatch?code={_config.ApiKey}", null);
 
-                _logger?.Debug("{@location} retrieved for {address}", deserializeLocation, address);
+                var responseText = await response.Content.ReadAsStringAsync();
+                var deserializeResponse = JsonConvert.DeserializeObject<GeoLocationDto>(responseText);
 
-                return deserializeLocation;
+                _logger?.Debug("{@location} retrieved for {address}", deserializeResponse, address);
+
+                return deserializeResponse;
             }
         }
 
         private async Task<List<GeoLocationDto>> GetGeoLocationBatchDto(List<string> addresses)
         {
-            using (var wc = new WebClient())
+            using (var client = new HttpClient())
             {
                 var addressesJson = JsonConvert.SerializeObject(addresses);
 
-                var locationsString =
-                    await wc.UploadStringTaskAsync(
-                        $"{_config.BaseUrl}/api/LookupAddressBatch?code={_config.ApiKey}", addressesJson);
-                var deserializeLocations = JsonConvert.DeserializeObject<List<GeoLocationDto>>(locationsString);
+                var response =
+                    await client.PostAsync($"{_config.BaseUrl}/api/LookupAddressBatch?code={_config.ApiKey}",
+                        new StringContent(addressesJson));
 
-                _logger?.Debug("{@locations} retrieved for {addresses}", deserializeLocations, addresses);
+                var responseText = await response.Content.ReadAsStringAsync();
+                var deserializeResponse = JsonConvert.DeserializeObject<List<GeoLocationDto>>(responseText);
 
-                return deserializeLocations;
+                _logger?.Debug("{@locations} retrieved for {addresses}", deserializeResponse, addresses);
+
+                return deserializeResponse;
+            }
+        }
+
+        private async Task<RemoveDataResponse> RemoveAddressData(string address)
+        {
+            using (var client = new HttpClient())
+            {
+                var response =
+                    await client.DeleteAsync(
+                        $"{_config.BaseUrl}/api/RemoveDataForAddress?code={_config.ApiKey}&address={address}");
+
+                var responseText = await response.Content.ReadAsStringAsync();
+                var deserializeResponse = JsonConvert.DeserializeObject<RemoveDataResponse>(responseText);
+
+                _logger?.Debug("{@location} retrieved for {address}", deserializeResponse, address);
+
+                return deserializeResponse;
             }
         }
 

@@ -9,6 +9,7 @@ namespace FM.GeoLocation.Repositories
     {
         Task<GeoLocationEntity> StoreEntity(GeoLocationEntity entity);
         Task<GeoLocationEntity> GetGeoLocationEntity(string address);
+        Task RemoveGeoLocationEntity(GeoLocationEntity entity);
     }
 
     public class LocationsRepository : ILocationsRepository
@@ -27,34 +28,47 @@ namespace FM.GeoLocation.Repositories
 
         public async Task<GeoLocationEntity> StoreEntity(GeoLocationEntity entity)
         {
-            var storageAccount = CloudStorageAccount.Parse(_tableStorageConfiguration.TableStorageConnectionString);
-            var tableClient = storageAccount.CreateCloudTableClient();
-            var tableReference = tableClient.GetTableReference("locationsv2");
-            await tableReference.CreateIfNotExistsAsync();
+            var tableReference = await GetReference();
 
             var insertOrReplaceOperation = TableOperation.InsertOrReplace(entity);
 
             var result = await tableReference.ExecuteAsync(insertOrReplaceOperation);
-            var insertedGeoLocationEntity = result.Result as GeoLocationEntity;
+            var insertedGeoLocationEntity = (GeoLocationEntity)result.Result;
 
             return insertedGeoLocationEntity;
         }
 
         public async Task<GeoLocationEntity> GetGeoLocationEntity(string address)
         {
-            var storageAccount = CloudStorageAccount.Parse(_tableStorageConfiguration.TableStorageConnectionString);
-            var tableClient = storageAccount.CreateCloudTableClient();
-            var tableReference = tableClient.GetTableReference("locationsv2");
-            await tableReference.CreateIfNotExistsAsync();
+            var tableReference = await GetReference();
 
             var retrieveTableOperation =
-                TableOperation.Retrieve(_partitionKeyHelper.GetPartitionKeyFromAddress(address), address);
+                TableOperation.Retrieve<GeoLocationEntity>(_partitionKeyHelper.GetPartitionKeyFromAddress(address), address);
 
             var result = await tableReference.ExecuteAsync(retrieveTableOperation);
 
             var retrievedEntity = result.Result as GeoLocationEntity;
 
             return retrievedEntity;
+        }
+
+        public async Task RemoveGeoLocationEntity(GeoLocationEntity entity)
+        {
+            var tableReference = await GetReference();
+
+            var deleteTableOperation = TableOperation.Delete(entity);
+
+            await tableReference.ExecuteAsync(deleteTableOperation);
+        }
+
+        private async Task<CloudTable> GetReference()
+        {
+            var storageAccount = CloudStorageAccount.Parse(_tableStorageConfiguration.TableStorageConnectionString);
+            var tableClient = storageAccount.CreateCloudTableClient();
+            var tableReference = tableClient.GetTableReference("locationsv2");
+            await tableReference.CreateIfNotExistsAsync();
+
+            return tableReference;
         }
     }
 }

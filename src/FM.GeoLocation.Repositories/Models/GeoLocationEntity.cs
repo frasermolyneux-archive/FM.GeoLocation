@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
+using FM.GeoLocation.Repositories.Attributes;
 using Microsoft.Azure.Cosmos.Table;
 
 namespace FM.GeoLocation.Repositories.Models
 {
     public class GeoLocationEntity : TableEntity
     {
+        public GeoLocationEntity()
+        {
+            // Unsure
+        }
+
         public GeoLocationEntity(string type, string address)
         {
             PartitionKey = type;
@@ -24,6 +30,21 @@ namespace FM.GeoLocation.Repositories.Models
         public double Longitude { get; set; }
         public int AccuracyRadius { get; set; }
         public string Timezone { get; set; }
-        public Dictionary<string, string> Traits { get; set; }
+
+        [EntityJsonPropertyConverter] public Dictionary<string, string> Traits { get; set; }
+
+        public override IDictionary<string, EntityProperty> WriteEntity(OperationContext operationContext)
+        {
+            var results = base.WriteEntity(operationContext);
+            EntityJsonPropertyConverter.Serialize(this, results);
+            return results;
+        }
+
+        public override void ReadEntity(IDictionary<string, EntityProperty> properties,
+            OperationContext operationContext)
+        {
+            base.ReadEntity(properties, operationContext);
+            EntityJsonPropertyConverter.Deserialize(this, properties);
+        }
     }
 }
