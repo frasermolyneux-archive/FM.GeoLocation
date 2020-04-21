@@ -4,9 +4,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FM.GeoLocation.Contract.Models;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly;
-using Serilog;
 
 namespace FM.GeoLocation.Client
 {
@@ -33,7 +33,7 @@ namespace FM.GeoLocation.Client
 
                 if (cachedEntry?.Created > DateTime.UtcNow.AddMinutes(-_config.CacheEntryLifeInMinutes))
                 {
-                    _logger?.Debug("Returning location for {address} from memory cache", address);
+                    _logger?.LogDebug("Returning location for {address} from memory cache", address);
                     return cachedEntry.LookupAddressResponse;
                 }
 
@@ -46,7 +46,7 @@ namespace FM.GeoLocation.Client
                     .WaitAndRetryAsync(_config.RetryTimespans,
                         (result, timeSpan, retryCount, context) =>
                         {
-                            _logger?.Warning("Failed to get location for {address} - retry count: {count}", address,
+                            _logger?.LogWarning("Failed to get location for {address} - retry count: {count}", address,
                                 retryCount);
                         })
                     .ExecuteAsync(async () => await GetGeoLocationDto(address));
@@ -57,7 +57,7 @@ namespace FM.GeoLocation.Client
             }
             catch (Exception ex)
             {
-                _logger?.Error(ex, "Failed to get location for address {address}", address);
+                _logger?.LogError(ex, "Failed to get location for address {address}", address);
                 throw;
             }
         }
@@ -70,7 +70,7 @@ namespace FM.GeoLocation.Client
                     .WaitAndRetryAsync(_config.RetryTimespans,
                         (result, timeSpan, retryCount, context) =>
                         {
-                            _logger?.Warning("Failed to get locations for {addresses} - retry count: {count}",
+                            _logger?.LogWarning("Failed to get locations for {addresses} - retry count: {count}",
                                 addresses,
                                 retryCount);
                         })
@@ -80,7 +80,7 @@ namespace FM.GeoLocation.Client
             }
             catch (Exception ex)
             {
-                _logger?.Error(ex, "Failed to get locations for addresses {addresses}", addresses);
+                _logger?.LogError(ex, "Failed to get locations for addresses {addresses}", addresses);
                 throw;
             }
         }
@@ -95,7 +95,7 @@ namespace FM.GeoLocation.Client
                     .WaitAndRetryAsync(_config.RetryTimespans,
                         (result, timeSpan, retryCount, context) =>
                         {
-                            _logger?.Warning("Failed remove data for {address} - retry count: {count}", address,
+                            _logger?.LogWarning("Failed remove data for {address} - retry count: {count}", address,
                                 retryCount);
                         })
                     .ExecuteAsync(async () => await RemoveAddressData(address));
@@ -104,7 +104,7 @@ namespace FM.GeoLocation.Client
             }
             catch (Exception ex)
             {
-                _logger?.Error(ex, "Failed to remove data for address {address}", address);
+                _logger?.LogError(ex, "Failed to remove data for address {address}", address);
                 throw;
             }
         }
@@ -120,7 +120,7 @@ namespace FM.GeoLocation.Client
                 var responseText = await response.Content.ReadAsStringAsync();
                 var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressResponse>(responseText);
 
-                _logger?.Debug("{@location} retrieved for {address}", deserializeResponse, address);
+                _logger?.LogDebug("{@location} retrieved for {address}", deserializeResponse, address);
 
                 return deserializeResponse;
             }
@@ -139,7 +139,7 @@ namespace FM.GeoLocation.Client
                 var responseText = await response.Content.ReadAsStringAsync();
                 var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressBatchResponse>(responseText);
 
-                _logger?.Debug("{@locations} retrieved for {addresses}", deserializeResponse, addresses);
+                _logger?.LogDebug("{@locations} retrieved for {addresses}", deserializeResponse, addresses);
 
                 return deserializeResponse;
             }
@@ -156,7 +156,7 @@ namespace FM.GeoLocation.Client
                 var responseText = await response.Content.ReadAsStringAsync();
                 var deserializeResponse = JsonConvert.DeserializeObject<RemoveDataForAddressResponse>(responseText);
 
-                _logger?.Debug("{@location} retrieved for {address}", deserializeResponse, address);
+                _logger?.LogDebug("{@location} retrieved for {address}", deserializeResponse, address);
 
                 return deserializeResponse;
             }
