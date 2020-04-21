@@ -13,9 +13,9 @@ namespace FM.GeoLocation.Client
     public class GeoLocationClient : IGeoLocationClient
     {
         private readonly IGeoLocationClientConfiguration _config;
-        private readonly ILogger _logger;
+        private readonly ILogger<GeoLocationClient> _logger;
 
-        public GeoLocationClient(IGeoLocationClientConfiguration config, ILogger logger)
+        public GeoLocationClient(IGeoLocationClientConfiguration config, ILogger<GeoLocationClient> logger)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _logger = logger;
