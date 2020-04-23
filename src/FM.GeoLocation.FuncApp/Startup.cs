@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using FM.GeoLocation.Client;
+using FM.GeoLocation.Contract.Interfaces;
 using FM.GeoLocation.FuncApp;
 using FM.GeoLocation.Repositories;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
