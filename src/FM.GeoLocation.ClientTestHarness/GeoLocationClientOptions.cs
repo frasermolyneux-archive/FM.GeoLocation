@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using FM.GeoLocation.Client;
+using FM.GeoLocation.Contract.Interfaces;
 using Microsoft.Extensions.Configuration;
 
 namespace FM.GeoLocation.ClientTestHarness

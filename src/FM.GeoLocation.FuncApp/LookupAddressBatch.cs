@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using FM.GeoLocation.Client;
+using FM.GeoLocation.Contract.Interfaces;
 using FM.GeoLocation.Contract.Models;
 using FM.GeoLocation.Repositories;
 using FM.GeoLocation.Repositories.Models;

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Net;
+using FM.GeoLocation.Contract.Interfaces;
 
 namespace FM.GeoLocation.Client
 {

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using FM.GeoLocation.Contract.Models;
 
-namespace FM.GeoLocation.Client
+namespace FM.GeoLocation.Contract.Interfaces
 {
     public interface IGeoLocationClient
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FM.GeoLocation.Client
+namespace FM.GeoLocation.Contract.Interfaces
 {
     public interface IGeoLocationClientOptions
     {

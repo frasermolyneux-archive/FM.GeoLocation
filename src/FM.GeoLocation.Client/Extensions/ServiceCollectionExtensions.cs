@@ -1,4 +1,5 @@
 ﻿using System;
+using FM.GeoLocation.Contract.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FM.GeoLocation.Client.Extensions

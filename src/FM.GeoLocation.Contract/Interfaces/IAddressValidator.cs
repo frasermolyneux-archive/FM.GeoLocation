@@ -1,4 +1,4 @@
-﻿namespace FM.GeoLocation.Client
+﻿namespace FM.GeoLocation.Contract.Interfaces
 {
     public interface IAddressValidator
     {

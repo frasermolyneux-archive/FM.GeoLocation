@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FM.GeoLocation.Contract.Interfaces;
 using FM.GeoLocation.Contract.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
