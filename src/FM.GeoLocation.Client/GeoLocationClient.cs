@@ -12,13 +12,15 @@ namespace FM.GeoLocation.Client
 {
     public class GeoLocationClient : IGeoLocationClient
     {
-        private readonly IGeoLocationClientConfiguration _config;
         private readonly ILogger<GeoLocationClient> _logger;
+        private readonly IGeoLocationClientOptions _options;
 
-        public GeoLocationClient(IGeoLocationClientConfiguration config, ILogger<GeoLocationClient> logger)
+        public GeoLocationClient(ILogger<GeoLocationClient> logger, IGeoLocationClientOptions options)
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
             _logger = logger;
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+
+            if (_options.RetryTimespans == null) _options.RetryTimespans = new[] {TimeSpan.FromSeconds(1)};
         }
 
         public List<CacheEntry> Cache { get; set; } = new List<CacheEntry>();
@@ -27,11 +29,11 @@ namespace FM.GeoLocation.Client
         {
             if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
 
-            if (_config.UseMemoryCache)
+            if (_options.UseMemoryCache)
             {
                 var cachedEntry = Cache.SingleOrDefault(c => c.Address == address);
 
-                if (cachedEntry?.Created > DateTime.UtcNow.AddMinutes(-_config.CacheEntryLifeInMinutes))
+                if (cachedEntry?.Created > DateTime.UtcNow.AddMinutes(-_options.CacheEntryLifeInMinutes))
                 {
                     _logger?.LogDebug("Returning location for {address} from memory cache", address);
                     return cachedEntry.LookupAddressResponse;
@@ -43,7 +45,7 @@ namespace FM.GeoLocation.Client
             try
             {
                 var locationResult = await Policy.Handle<Exception>()
-                    .WaitAndRetryAsync(_config.RetryTimespans,
+                    .WaitAndRetryAsync(_options.RetryTimespans,
                         (result, timeSpan, retryCount, context) =>
                         {
                             _logger?.LogWarning("Failed to get location for {address} - retry count: {count}", address,
@@ -67,7 +69,7 @@ namespace FM.GeoLocation.Client
             try
             {
                 var locationResult = await Policy.Handle<Exception>()
-                    .WaitAndRetryAsync(_config.RetryTimespans,
+                    .WaitAndRetryAsync(_options.RetryTimespans,
                         (result, timeSpan, retryCount, context) =>
                         {
                             _logger?.LogWarning("Failed to get locations for {addresses} - retry count: {count}",
@@ -92,7 +94,7 @@ namespace FM.GeoLocation.Client
             try
             {
                 var removeDataResponse = await Policy.Handle<Exception>()
-                    .WaitAndRetryAsync(_config.RetryTimespans,
+                    .WaitAndRetryAsync(_options.RetryTimespans,
                         (result, timeSpan, retryCount, context) =>
                         {
                             _logger?.LogWarning("Failed remove data for {address} - retry count: {count}", address,
@@ -115,7 +117,7 @@ namespace FM.GeoLocation.Client
             {
                 var response =
                     await client.PostAsync(
-                        $"{_config.BaseUrl}/api/LookupAddress?code={_config.ApiKey}&address={address}", null);
+                        $"{_options.BaseUrl}/api/LookupAddress?code={_options.ApiKey}&address={address}", null);
 
                 var responseText = await response.Content.ReadAsStringAsync();
                 var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressResponse>(responseText);
@@ -133,7 +135,7 @@ namespace FM.GeoLocation.Client
                 var addressesJson = JsonConvert.SerializeObject(addresses);
 
                 var response =
-                    await client.PostAsync($"{_config.BaseUrl}/api/LookupAddressBatch?code={_config.ApiKey}",
+                    await client.PostAsync($"{_options.BaseUrl}/api/LookupAddressBatch?code={_options.ApiKey}",
                         new StringContent(addressesJson));
 
                 var responseText = await response.Content.ReadAsStringAsync();
@@ -151,7 +153,7 @@ namespace FM.GeoLocation.Client
             {
                 var response =
                     await client.DeleteAsync(
-                        $"{_config.BaseUrl}/api/RemoveDataForAddress?code={_config.ApiKey}&address={address}");
+                        $"{_options.BaseUrl}/api/RemoveDataForAddress?code={_options.ApiKey}&address={address}");
 
                 var responseText = await response.Content.ReadAsStringAsync();
                 var deserializeResponse = JsonConvert.DeserializeObject<RemoveDataForAddressResponse>(responseText);

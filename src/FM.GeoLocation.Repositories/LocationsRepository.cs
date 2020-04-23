@@ -33,7 +33,7 @@ namespace FM.GeoLocation.Repositories
             var insertOrReplaceOperation = TableOperation.InsertOrReplace(entity);
 
             var result = await tableReference.ExecuteAsync(insertOrReplaceOperation);
-            var insertedGeoLocationEntity = (GeoLocationEntity)result.Result;
+            var insertedGeoLocationEntity = (GeoLocationEntity) result.Result;
 
             return insertedGeoLocationEntity;
         }
@@ -43,7 +43,8 @@ namespace FM.GeoLocation.Repositories
             var tableReference = await GetReference();
 
             var retrieveTableOperation =
-                TableOperation.Retrieve<GeoLocationEntity>(_partitionKeyHelper.GetPartitionKeyFromAddress(address), address);
+                TableOperation.Retrieve<GeoLocationEntity>(_partitionKeyHelper.GetPartitionKeyFromAddress(address),
+                    address);
 
             var result = await tableReference.ExecuteAsync(retrieveTableOperation);
 

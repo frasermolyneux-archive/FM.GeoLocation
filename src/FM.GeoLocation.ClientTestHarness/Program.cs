@@ -17,13 +17,13 @@ namespace FM.GeoLocation.ClientTestHarness
                 .Build();
 
 
-            var geoLocationClientConfiguration = new GeoLocationClientConfiguration(config);
-            var geoLocationClient = new GeoLocationClient(geoLocationClientConfiguration, null);
+            var geoLocationClientOptions = new GeoLocationClientOptions(config);
+            var geoLocationClient = new GeoLocationClient(null, geoLocationClientOptions);
 
             var value = await geoLocationClient.LookupAddress("162.65.65.65");
 
-            var addresses = new string[] {"google.com", "sky.com", "bbc.co.uk"};
-            var batchValue = await  geoLocationClient.LookupAddressBatch(new List<string>(addresses));
+            var addresses = new[] {"google.com", "sky.com", "bbc.co.uk"};
+            var batchValue = await geoLocationClient.LookupAddressBatch(new List<string>(addresses));
 
             Console.ReadKey();
         }

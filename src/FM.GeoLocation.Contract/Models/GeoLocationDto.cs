@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace FM.GeoLocation.Contract.Models
 {
@@ -7,7 +6,7 @@ namespace FM.GeoLocation.Contract.Models
     {
         public string Address { get; set; }
         public string TranslatedAddress { get; set; }
-        
+
         public string ContinentCode { get; set; }
         public string ContinentName { get; set; }
         public string CountryCode { get; set; }

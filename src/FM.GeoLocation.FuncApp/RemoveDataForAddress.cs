@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using FM.GeoLocation.Client;
 using FM.GeoLocation.Contract.Models;
 using FM.GeoLocation.Repositories;
-using FM.GeoLocation.Repositories.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
