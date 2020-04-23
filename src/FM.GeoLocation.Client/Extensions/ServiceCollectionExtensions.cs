@@ -19,6 +19,7 @@ namespace FM.GeoLocation.Client.Extensions
 
             serviceCollection.AddSingleton(configureOptions);
             serviceCollection.AddSingleton<IGeoLocationClient, GeoLocationClient>();
+            serviceCollection.AddSingleton<IAddressValidator, AddressValidator>();
         }
     }
 }
