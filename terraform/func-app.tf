@@ -1,5 +1,5 @@
 resource "azurerm_storage_account" "funcapp-storage-account" {
-    name = "funcapp${var.environment}"
+    name = "geolocationfuncapp${var.environment}"
     resource_group_name = azurerm_resource_group.resource-group.name
     location = azurerm_resource_group.resource-group.location
     account_tier = "Standard"

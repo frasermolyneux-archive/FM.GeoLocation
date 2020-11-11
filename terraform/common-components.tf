@@ -4,7 +4,7 @@ resource "azurerm_resource_group" "resource-group" {
 }
 
 resource "azurerm_storage_account" "appdata-storage" {
-  name = "appdata${var.environment}"
+  name = "geolocationappdata${var.environment}"
   resource_group_name = azurerm_resource_group.resource-group.name
   location = azurerm_resource_group.resource-group.location
   account_tier = "Standard"
