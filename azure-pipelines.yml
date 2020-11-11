@@ -12,7 +12,7 @@ variables:
   TerraformVersion: '0.13.0'
   AzTerraformRegion: 'uksouth'
   AzTerraformResourceGroup: 'fm-geolocation-terraform'
-  AzTerraformStorageAccount: 'geolocation'
+  AzTerraformStorageAccount: 'fm-geolocation-tfstate'
   AzSubscription: 'Personal-Pay-As-You-Go'
 
 stages:
