@@ -3,7 +3,7 @@ parameters:
   default: 'dev'
 
 stages:
-- stage: ${{ parameters.environment }}_deploy
+- stage: ${{ parameters.environment }}
 
   variables:
   - group: 'fm-geolocation-${{ parameters.environment }}'

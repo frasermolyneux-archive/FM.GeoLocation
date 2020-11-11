@@ -90,7 +90,7 @@ stages:
       displayName: Publish terraform artifact
       artifact: terraform
 
-- stage: pre_deploy
+- stage: terraform_state_backend
   jobs:
   - job: create_terraform_backend
     pool:
