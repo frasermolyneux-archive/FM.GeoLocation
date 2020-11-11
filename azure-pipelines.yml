@@ -41,11 +41,11 @@ stages:
         arguments: '-c Release'
 
     - task: CopyFiles@2
-      displayName: "Copy terraform to artifact staging directory"
+      displayName: 'Copy terraform folder into staging directory'
       inputs: 
-        SourceFolder: '$(Build.SourcesDirectory)/terraform'
+        SourceFolder: '$(Build.sourcesDirectory)/terraform'
         Contents: '**'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)/terraform'
+        TargetFolder: '$(Build.artifactStagingDirectory)/terraform'
 
     - task: ArchiveFiles@2
       displayName: "Package FM.GeoLocation.FuncApp to artifact staging directory"
@@ -80,12 +80,13 @@ stages:
         publishVstsFeed: 'f6b61452-5280-47a1-b802-b2cfc8630b77/c57e8cd1-2aa2-4c0d-96cb-450405f73d4d'
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
-    - task: PublishBuildArtifacts@1
-      displayName: "Publish build artifacts"
-      inputs:
-        PathToPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'drop'
-        publishLocation: 'Container'
+    - publish: $(Build.artifactStagingDirectory)/FM.GeoLocation.FuncApp.zip
+      displayName: Publish FM.GeoLocation.FuncApp artifact
+      artifact: funcapp
+
+    - publish: $(Build.artifactStagingDirectory)/terraform
+      displayName: Publish terraform artifact
+      artifact: terraform
 
 - stage: pre_deploy
   jobs:
