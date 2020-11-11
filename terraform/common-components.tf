@@ -14,7 +14,7 @@ resource "azurerm_storage_account" "appdata-storage" {
 resource "azurerm_storage_table" "geolocation-table" {
   name = "locations"
   resource_group_name = azurerm_resource_group.resource-group.name
-  storage_account_name = azurerm_storage_account.geolocation-storage.name
+  storage_account_name = azurerm_storage_account.appdata-storage.name
 }
 
 output "appdata_storage_connection" {

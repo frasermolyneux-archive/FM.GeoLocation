@@ -6,7 +6,7 @@ resource "azurerm_storage_account" "funcapp-storage-account" {
     account_replication_type = "LRS"
 }
 
-resource "azurerm_app_service_plan" "app-service-plan" {
+resource "azurerm_app_service_plan" "funcapp-service-plan" {
     name = "GeoLocation-AppPlan-${var.environment}"
     resource_group_name = azurerm_resource_group.resource-group.name
     location = azurerm_resource_group.resource-group.location
@@ -17,7 +17,7 @@ resource "azurerm_app_service_plan" "app-service-plan" {
     }
 }
 
-resource "azurerm_function_app" "geolocation-function-app" {
+resource "azurerm_function_app" "function-app" {
     name = "geolocation-funcapp-${var.environment}"
     location = azurerm_resource_group.resource-group.location
     resource_group_name = azurerm_resource_group.resource-group.name
