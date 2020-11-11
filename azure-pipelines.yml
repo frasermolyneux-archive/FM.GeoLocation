@@ -9,65 +9,100 @@ pool:
 variables:
   versionMajor: 1
   versionMinor: 0
+  AzTerraformRegion: 'uksouth'
+  AzTerraformResourceGroup: 'FM-GeoLocation-Terraform'
+  AzTerraformStorageAccount: 'fmgeolocation'
 
-steps:
-- task: DotNetCoreCLI@2
-  displayName: ".NET Core Restore"
-  inputs:
-    command: 'restore'
-    projects: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/FM.GeoLocation.FuncApp.csproj'
-    feedsToUse: 'select'
+stages:
+- stage: build
+  jobs:
+  - job: build
+    pool:
+      vmImage: 'windows-latest'
 
-- task: DotNetCoreCLI@2
-  displayName: ".NET Core Build"
-  inputs:
-    command: 'build'
-    projects: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/FM.GeoLocation.FuncApp.csproj'
-    arguments: '-c Release'
+    variables:
+      solution: '**/*.sln'
+      buildPlatform: 'Any CPU'
+      buildConfiguration: 'Release'
 
-- task: CopyFiles@2
-  displayName: "Copy terraform to artifact staging directory"
-  inputs: 
-    SourceFolder: '$(Build.SourcesDirectory)/terraform'
-    Contents: '**'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/terraform'
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: ".NET Core Restore"
+      inputs:
+        command: 'restore'
+        projects: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/FM.GeoLocation.FuncApp.csproj'
+        feedsToUse: 'select'
 
-- task: ArchiveFiles@2
-  displayName: "Package FM.GeoLocation.FuncApp to artifact staging directory"
-  inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/bin/Release/netcoreapp3.1/'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/FM.GeoLocation.FuncApp.zip'
-    replaceExistingArchive: true
+    - task: DotNetCoreCLI@2
+      displayName: ".NET Core Build"
+      inputs:
+        command: 'build'
+        projects: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/FM.GeoLocation.FuncApp.csproj'
+        arguments: '-c Release'
 
-- task: DotNetCoreCLI@2
-  displayName: "Pack FM.GeoLocation.Client"
-  inputs:
-    command: pack
-    packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Client/FM.GeoLocation.Client.csproj'
-    packDestination: '$(Build.ArtifactStagingDirectory)'
-    buildProperties: 'Version="$(versionMajor).$(versionMinor).$(Build.BuildId)"'
+    - task: CopyFiles@2
+      displayName: "Copy terraform to artifact staging directory"
+      inputs: 
+        SourceFolder: '$(Build.SourcesDirectory)/terraform'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/terraform'
 
-- task: DotNetCoreCLI@2
-  displayName: "Pack FM.GeoLocation.Contract"
-  inputs:
-    command: pack
-    packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Contract/FM.GeoLocation.Contract.csproj'
-    packDestination: '$(Build.ArtifactStagingDirectory)'
-    buildProperties: 'Version="$(versionMajor).$(versionMinor).$(Build.BuildId)"'
+    - task: ArchiveFiles@2
+      displayName: "Package FM.GeoLocation.FuncApp to artifact staging directory"
+      inputs:
+        rootFolderOrFile: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/bin/Release/netcoreapp3.1/'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/FM.GeoLocation.FuncApp.zip'
+        replaceExistingArchive: true
 
-- task: NuGetCommand@2
-  displayName: 'NuGet push'
-  inputs:
-    command: push
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    publishVstsFeed: 'f6b61452-5280-47a1-b802-b2cfc8630b77/c57e8cd1-2aa2-4c0d-96cb-450405f73d4d'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    - task: DotNetCoreCLI@2
+      displayName: "Pack FM.GeoLocation.Client"
+      inputs:
+        command: pack
+        packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Client/FM.GeoLocation.Client.csproj'
+        packDestination: '$(Build.ArtifactStagingDirectory)'
+        buildProperties: 'Version="$(versionMajor).$(versionMinor).$(Build.BuildId)"'
 
-- task: PublishBuildArtifacts@1
-  displayName: "Publish build artifacts"
-  inputs:
-    PathToPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+    - task: DotNetCoreCLI@2
+      displayName: "Pack FM.GeoLocation.Contract"
+      inputs:
+        command: pack
+        packagesToPack: '$(Build.SourcesDirectory)/src/FM.GeoLocation.Contract/FM.GeoLocation.Contract.csproj'
+        packDestination: '$(Build.ArtifactStagingDirectory)'
+        buildProperties: 'Version="$(versionMajor).$(versionMinor).$(Build.BuildId)"'
+
+    - task: NuGetCommand@2
+      displayName: 'NuGet push'
+      inputs:
+        command: push
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+        publishVstsFeed: 'f6b61452-5280-47a1-b802-b2cfc8630b77/c57e8cd1-2aa2-4c0d-96cb-450405f73d4d'
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+    - task: PublishBuildArtifacts@1
+      displayName: "Publish build artifacts"
+      inputs:
+        PathToPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: pre_deploy
+  jobs:
+  - job: create_terraform_backend
+    pool:
+      vmImage: 'windows-latest'
+
+    steps:
+    - checkout: none
+      displayName: 'Skip checking out source'
+
+    - task: AzureCLI@1
+      displayName: 'Create terraform backend in Azure storage'
+      inputs:
+        azureSubscription: 'Personal-Pay-As-You-Go'
+        scriptLocation: inlineScript
+        inlineScript: |
+          call az group create --location "$(AzTerraformRegion)" --name "$(AzTerraformResourceGroup)"
+          call az storage account create --name "$(AzTerraformStorageAccount)" --resource-group "$(AzTerraformResourceGroup)" --location "$(AzTerraformRegion)" --sku "Standard_LRS"
+          call az storage container create --name "terraform" --account-name "$(AzTerraformStorageAccount)"
