@@ -46,7 +46,7 @@ stages:
             inputs:
               command: plan
               workingDirectory: '$(Pipeline.Workspace)/terraform'
-              commandOptions: '-var="environment=$(environment)" -var="maxmind_user_id=$(maxmind_user_id)" -var="maxmind_api_key=$(maxmind_api_key)"'
+              commandOptions: '-var="environment=$(environment)"'
               environmentServiceNameAzureRM: 'Personal-Pay-As-You-Go'
 
           - task: TerraformTaskV1@0
@@ -55,7 +55,7 @@ stages:
             inputs:
               command: apply
               workingDirectory: '$(Pipeline.Workspace)/terraform'
-              commandOptions: '-var="environment=$(environment)" -var="maxmind_user_id=$(maxmind_user_id)" -var="maxmind_api_key=$(maxmind_api_key)"'
+              commandOptions: '-var="environment=$(environment)"'
               environmentServiceNameAzureRM: 'Personal-Pay-As-You-Go'
 
           - powershell: |
