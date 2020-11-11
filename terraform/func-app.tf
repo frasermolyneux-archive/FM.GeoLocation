@@ -1,5 +1,5 @@
 resource "azurerm_storage_account" "funcapp-storage-account" {
-    name = "funcappsa${var.environment}"
+    name = "funcapp${var.environment}"
     resource_group_name = azurerm_resource_group.resource-group.name
     location = azurerm_resource_group.resource-group.location
     account_tier = "Standard"
@@ -7,7 +7,7 @@ resource "azurerm_storage_account" "funcapp-storage-account" {
 }
 
 resource "azurerm_app_service_plan" "funcapp-service-plan" {
-    name = "GeoLocation-AppPlan-${var.environment}"
+    name = "geolocation-appsvcplan-${var.environment}"
     resource_group_name = azurerm_resource_group.resource-group.name
     location = azurerm_resource_group.resource-group.location
     kind = "FunctionApp"

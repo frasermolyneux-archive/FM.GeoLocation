@@ -9,9 +9,11 @@ pool:
 variables:
   versionMajor: 1
   versionMinor: 0
+  TerraformVersion: '0.13.0'
   AzTerraformRegion: 'uksouth'
-  AzTerraformResourceGroup: 'FM-GeoLocation-Terraform'
-  AzTerraformStorageAccount: 'fmgeolocation'
+  AzTerraformResourceGroup: 'fm-geolocation-terraform'
+  AzTerraformStorageAccount: 'geolocation'
+  AzSubscription: 'Personal-Pay-As-You-Go'
 
 stages:
 - stage: build
@@ -101,7 +103,7 @@ stages:
     - task: AzureCLI@1
       displayName: 'Create terraform backend in Azure storage'
       inputs:
-        azureSubscription: 'Personal-Pay-As-You-Go'
+        azureSubscription: '$(AzSubscription)'
         scriptLocation: inlineScript
         inlineScript: |
           call az group create --location "$(AzTerraformRegion)" --name "$(AzTerraformResourceGroup)"

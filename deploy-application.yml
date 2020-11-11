@@ -29,13 +29,13 @@ stages:
           - task: TerraformInstaller@0
             displayName: 'Install terraform'
             inputs:
-              terraformVersion: '0.12.24'
+              terraformVersion: '$(TerraformVersion)'
 
           - task: TerraformTaskV1@0
             displayName: 'Terraform: azurerm init'
             inputs:
               workingDirectory: '$(Pipeline.Workspace)/terraform'
-              backendServiceArm: 'Personal-Pay-As-You-Go'
+              backendServiceArm: '$(AzSubscription)'
               backendAzureRmResourceGroupName: '$(AzTerraformResourceGroup)'
               backendAzureRmStorageAccountName: '$(AzTerraformStorageAccount)'
               backendAzureRmContainerName: terraform
@@ -47,7 +47,7 @@ stages:
               command: plan
               workingDirectory: '$(Pipeline.Workspace)/terraform'
               commandOptions: '-var="environment=$(environment)"'
-              environmentServiceNameAzureRM: 'Personal-Pay-As-You-Go'
+              environmentServiceNameAzureRM: '$(AzSubscription)'
 
           - task: TerraformTaskV1@0
             name: terraform_validate_and_apply
@@ -56,7 +56,7 @@ stages:
               command: apply
               workingDirectory: '$(Pipeline.Workspace)/terraform'
               commandOptions: '-var="environment=$(environment)"'
-              environmentServiceNameAzureRM: 'Personal-Pay-As-You-Go'
+              environmentServiceNameAzureRM: '$(AzSubscription)'
 
           - powershell: |
               $terraformOutput = Get-Content "$(terraform_validate_and_apply.jsonOutputVariablesPath)" | ConvertFrom-Json
@@ -86,7 +86,7 @@ stages:
           - task: AzureFunctionApp@1
             displayName: 'Azure Function App Deploy: FM-GeoLocation-FuncApp-$(Environment)'
             inputs:
-              azureSubscription: 'Personal-Pay-As-You-Go'
+              azureSubscription: '$(AzSubscription)'
               appType: functionAppLinux
               appName: 'geolocation-funcapp-$(environment)'
               deployToSlotOrASE: true
