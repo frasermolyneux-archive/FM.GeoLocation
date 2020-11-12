@@ -95,7 +95,7 @@ stages:
               appType: functionAppLinux
               appName: 'geolocation-funcapp-$(environment)'
               deployToSlotOrASE: true
-              resourceGroupName: 'FM-GeoLocation-$(environment)'
+              resourceGroupName: 'fm-geolocation-$(environment)'
               package: '$(Pipeline.Workspace)/funcapp/FM.GeoLocation.FuncApp.zip'
               runtimeStack: 'DOCKER|microsoft/azure-functions-dotnet-core2.0:2.0'
               AppSettings: '-Storage:TableStorageConnectionString "$(appdata_storage_connection)" -MaxMind:UserId "$(maxmind-userid)" -MaxMind:ApiKey "$(maxmind-apikey)"'
