@@ -25,12 +25,6 @@ stages:
             displayName: 'Download terraform source artifact'
             artifact: terraform
 
-          - task: AzureKeyVault@1
-            inputs:
-              azureSubscription: '$(AzSubscription)'
-              keyVaultName: 'fm-geolocation-${{ parameters.environment }}'
-              secretsFilter: '*'
-
           - task: TerraformInstaller@0
             displayName: 'Install terraform'
             inputs:
@@ -87,6 +81,12 @@ stages:
           - download: current
             displayName: 'Download funcapp artifact'
             artifact: funcapp
+
+          - task: AzureKeyVault@1
+            inputs:
+              azureSubscription: '$(AzSubscription)'
+              keyVaultName: 'fm-geolocation-${{ parameters.environment }}'
+              secretsFilter: '*'
 
           - task: AzureFunctionApp@1
             displayName: 'Azure Function App Deploy: FM-GeoLocation-FuncApp-$(Environment)'
