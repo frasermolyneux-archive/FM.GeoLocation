@@ -6,7 +6,6 @@ stages:
 - stage: ${{ parameters.environment }}
 
   variables:
-  - group: 'fm-geolocation-${{ parameters.environment }}'
   - name: 'environment'
     value: ${{ parameters.environment }}
 
