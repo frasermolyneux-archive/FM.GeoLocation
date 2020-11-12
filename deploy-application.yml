@@ -93,4 +93,4 @@ stages:
               resourceGroupName: 'FM-GeoLocation-$(environment)'
               package: '$(Pipeline.Workspace)/funcapp/FM.GeoLocation.FuncApp.zip'
               runtimeStack: 'DOCKER|microsoft/azure-functions-dotnet-core2.0:2.0'
-              AppSettings: '-Storage:TableStorageConnectionString "$(appdata_storage_connection)" -MaxMind:UserId "$(maxmind_user_id)" -MaxMind:ApiKey "$(maxmind_api_key)"'
+              AppSettings: '-Storage:TableStorageConnectionString "$(appdata_storage_connection)" -MaxMind:UserId "$(MaxMind:UserId)" -MaxMind:ApiKey "$(MaxMind:ApiKey)"'
