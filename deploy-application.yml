@@ -26,6 +26,12 @@ stages:
             displayName: 'Download terraform source artifact'
             artifact: terraform
 
+          - task: AzureKeyVault@1
+            inputs:
+              azureSubscription: '$(AzSubscription)'
+              keyVaultName: 'fm-geolocation-${{ parameters.environment }}'
+              secretsFilter: '*'
+
           - task: TerraformInstaller@0
             displayName: 'Install terraform'
             inputs:
