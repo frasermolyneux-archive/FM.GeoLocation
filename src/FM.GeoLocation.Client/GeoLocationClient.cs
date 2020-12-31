@@ -228,6 +228,53 @@ namespace FM.GeoLocation.Client
             }
         }
 
+        public async Task<Tuple<bool, string>> HealthCheck()
+        {
+            try
+            {
+                var healthCheckReponse = await Policy.Handle<Exception>()
+                    .WaitAndRetryAsync(_options.RetryTimespans,
+                        (result, timeSpan, retryCount, context) =>
+                        {
+                            _logger?.LogWarning("Failed to get health check - retry count: '{count}'", retryCount);
+                        })
+                    .ExecuteAsync(async () => await InternalHealthCheck());
+
+                if (healthCheckReponse == null)
+                {
+                    return new Tuple<bool, string>(false, "Failed to perform health check");
+                }
+
+                return new Tuple<bool, string>(true, healthCheckReponse);
+            }
+            catch (ApplicationException ex)
+            {
+                _logger?.LogError(ex, "Application exception performing health check");
+
+                if (_options.BubbleExceptions)
+                {
+                    throw ex;
+                }
+                else
+                {
+                    return new Tuple<bool, string>(false, ex.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Exception performing health check");
+
+                if (_options.BubbleExceptions)
+                {
+                    throw ex;
+                }
+                else
+                {
+                    return new Tuple<bool, string>(false, "Exception performing health check");
+                }
+            }
+        }
+
         private async Task<LookupAddressResponse> GetGeoLocationDto(string address)
         {
             using (var client = new HttpClient())
@@ -302,6 +349,28 @@ namespace FM.GeoLocation.Client
                 _logger?.LogInformation("'{@location}' retrieved for '{address}'", deserializeResponse, address);
 
                 return deserializeResponse;
+            }
+        }
+
+        private async Task<string> InternalHealthCheck()
+        {
+            using (var client = new HttpClient())
+            {
+                var requestUri = $"{_options.BaseUrl}/api/HealthCheck?code={_options.ApiKey}";
+                _logger?.LogDebug($"Request Uri: '{requestUri}'");
+
+                var response = await client.DeleteAsync(requestUri);
+                _logger?.LogDebug($"Response Code: '{response.StatusCode}'");
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Failed to get health check with '{response.StatusCode}' response");
+                }
+
+                var responseText = await response.Content.ReadAsStringAsync();
+                _logger?.LogDebug($"Response Text: '{responseText}'");
+
+                return responseText;
             }
         }
 

@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FM.GeoLocation.Client", "FM.GeoLocation.Client\FM.GeoLocation.Client.csproj", "{B4319CDB-181D-41BE-9BF2-E300D5872303}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FM.GeoLocation.ClientTestHarness", "FM.GeoLocation.ClientTestHarness\FM.GeoLocation.ClientTestHarness.csproj", "{3AE1F739-CED8-4256-838B-E532DC0100EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FM.GeoLocation.ClientTestHarness", "FM.GeoLocation.ClientTestHarness\FM.GeoLocation.ClientTestHarness.csproj", "{3AE1F739-CED8-4256-838B-E532DC0100EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
