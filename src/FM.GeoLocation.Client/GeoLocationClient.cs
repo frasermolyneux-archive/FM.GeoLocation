@@ -185,14 +185,17 @@ namespace FM.GeoLocation.Client
         {
             using (var client = new HttpClient())
             {
-                var response =
-                    await client.PostAsync(
-                        $"{_options.BaseUrl}/api/LookupAddress?code={_options.ApiKey}&address={address}", null);
+                var requestUri = $"{_options.BaseUrl}/api/LookupAddress?code={_options.ApiKey}&address={address}";
+                _logger?.LogDebug($"Request Uri: {requestUri}");
+
+                var response = await client.PostAsync(requestUri, null);
+                _logger?.LogDebug($"Response Code: {response.StatusCode}");
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressResponse>(responseText);
+                _logger?.LogDebug($"Response Text: {responseText}");
 
-                _logger?.LogDebug("{@location} retrieved for {address}", deserializeResponse, address);
+                var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressResponse>(responseText);
+                _logger?.LogInformation("{@location} retrieved for {address}", deserializeResponse, address);
 
                 return deserializeResponse;
             }
@@ -204,14 +207,17 @@ namespace FM.GeoLocation.Client
             {
                 var addressesJson = JsonConvert.SerializeObject(addresses);
 
-                var response =
-                    await client.PostAsync($"{_options.BaseUrl}/api/LookupAddressBatch?code={_options.ApiKey}",
-                        new StringContent(addressesJson));
+                var requestUri = $"{_options.BaseUrl}/api/LookupAddressBatch?code={_options.ApiKey}";
+                _logger?.LogDebug($"Request Uri: {requestUri}");
+
+                var response = await client.PostAsync(requestUri, new StringContent(addressesJson));
+                _logger?.LogDebug($"Response Code: {response.StatusCode}");
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressBatchResponse>(responseText);
+                _logger?.LogDebug($"Response Text: {responseText}");
 
-                _logger?.LogDebug("{@locations} retrieved for {addresses}", deserializeResponse, addresses);
+                var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressBatchResponse>(responseText);
+                _logger?.LogInformation("{@locations} retrieved for {addresses}", deserializeResponse, addresses);
 
                 return deserializeResponse;
             }
@@ -221,14 +227,17 @@ namespace FM.GeoLocation.Client
         {
             using (var client = new HttpClient())
             {
-                var response =
-                    await client.DeleteAsync(
-                        $"{_options.BaseUrl}/api/RemoveDataForAddress?code={_options.ApiKey}&address={address}");
+                var requestUri = $"{_options.BaseUrl}/api/RemoveDataForAddress?code={_options.ApiKey}&address={address}";
+                _logger?.LogDebug($"Request Uri: {requestUri}");
+
+                var response = await client.DeleteAsync(requestUri);
+                _logger?.LogDebug($"Response Code: {response.StatusCode}");
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                var deserializeResponse = JsonConvert.DeserializeObject<RemoveDataForAddressResponse>(responseText);
+                _logger?.LogDebug($"Response Text: {responseText}");
 
-                _logger?.LogDebug("{@location} retrieved for {address}", deserializeResponse, address);
+                var deserializeResponse = JsonConvert.DeserializeObject<RemoveDataForAddressResponse>(responseText);
+                _logger?.LogInformation("{@location} retrieved for {address}", deserializeResponse, address);
 
                 return deserializeResponse;
             }
