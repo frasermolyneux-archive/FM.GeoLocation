@@ -9,6 +9,7 @@ namespace FM.GeoLocation.Client.Configuration
         public string BaseUrl { get; set; }
         public string ApiKey { get; set; }
         public bool UseMemoryCache { get; set; }
+        public bool BubbleExceptions { get; set; }
         public int CacheEntryLifeInMinutes { get; set; }
         public IEnumerable<TimeSpan> RetryTimespans { get; set; }
 

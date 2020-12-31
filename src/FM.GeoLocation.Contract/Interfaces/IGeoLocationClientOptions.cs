@@ -8,6 +8,7 @@ namespace FM.GeoLocation.Contract.Interfaces
         string BaseUrl { get; set; }
         string ApiKey { get; set; }
         bool UseMemoryCache { get; set; }
+        bool BubbleExceptions { get; set; }
         int CacheEntryLifeInMinutes { get; set; }
         IEnumerable<TimeSpan> RetryTimespans { get; set; }
     }

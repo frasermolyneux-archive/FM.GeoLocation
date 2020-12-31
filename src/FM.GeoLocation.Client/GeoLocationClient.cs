@@ -28,7 +28,13 @@ namespace FM.GeoLocation.Client
 
         public async Task<LookupAddressResponse> LookupAddress(string address)
         {
-            if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                return new LookupAddressResponse
+                {
+                    ErrorMessage = "Lookup address is null or empty"
+                };
+            }
 
             if (_options.UseMemoryCache)
             {
@@ -61,7 +67,18 @@ namespace FM.GeoLocation.Client
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Failed to get location for address {address}", address);
-                throw;
+
+                if (_options.BubbleExceptions)
+                {
+                    throw ex;
+                }
+                else
+                {
+                    return new LookupAddressResponse()
+                    {
+                        ErrorMessage = $"Failed to lookup address {address} data"
+                    };
+                }
             }
         }
 
@@ -84,13 +101,30 @@ namespace FM.GeoLocation.Client
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Failed to get locations for addresses {addresses}", addresses);
-                throw;
+
+                if (_options.BubbleExceptions)
+                {
+                    throw ex;
+                }
+                else
+                {
+                    return new LookupAddressBatchResponse()
+                    {
+                        ErrorMessage = $"Failed to lookup locations for address batch"
+                    };
+                }
             }
         }
 
         public async Task<RemoveDataForAddressResponse> RemoveDataForAddress(string address)
         {
-            if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                return new RemoveDataForAddressResponse
+                {
+                    ErrorMessage = "Lookup address is null or empty"
+                };
+            }
 
             try
             {
@@ -108,7 +142,18 @@ namespace FM.GeoLocation.Client
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Failed to remove data for address {address}", address);
-                throw;
+
+                if (_options.BubbleExceptions)
+                {
+                    throw ex;
+                }
+                else
+                {
+                    return new RemoveDataForAddressResponse()
+                    {
+                        ErrorMessage = $"Failed to remove address {address} data"
+                    };
+                }
             }
         }
 

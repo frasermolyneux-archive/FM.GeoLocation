@@ -20,7 +20,7 @@ namespace FM.GeoLocation.ClientTestHarness
             var geoLocationClientOptions = new GeoLocationClientOptions(config);
             var geoLocationClient = new GeoLocationClient(null, geoLocationClientOptions);
 
-            var value = await geoLocationClient.LookupAddress("162.65.65.65");
+            var value = await geoLocationClient.LookupAddress("8.8.8.8");
 
             var addresses = new[] {"google.com", "sky.com", "bbc.co.uk"};
             var batchValue = await geoLocationClient.LookupAddressBatch(new List<string>(addresses));

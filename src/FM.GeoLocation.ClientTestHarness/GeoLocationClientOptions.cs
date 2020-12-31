@@ -12,6 +12,7 @@ namespace FM.GeoLocation.ClientTestHarness
             BaseUrl = configuration["GeoLocationService:BaseUrl"];
             ApiKey = configuration["GeoLocationService:ApiKey"];
             UseMemoryCache = true;
+            BubbleExceptions = true;
             CacheEntryLifeInMinutes = 60;
             var random = new Random();
             RetryTimespans = new[]
@@ -25,6 +26,7 @@ namespace FM.GeoLocation.ClientTestHarness
         public string BaseUrl { get; set; }
         public string ApiKey { get; set; }
         public bool UseMemoryCache { get; set; }
+        public bool BubbleExceptions { get; set; }
         public int CacheEntryLifeInMinutes { get; set; }
         public IEnumerable<TimeSpan> RetryTimespans { get; set; }
     }
