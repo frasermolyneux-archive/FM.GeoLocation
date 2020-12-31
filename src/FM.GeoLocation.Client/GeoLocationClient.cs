@@ -60,6 +60,14 @@ namespace FM.GeoLocation.Client
                         })
                     .ExecuteAsync(async () => await GetGeoLocationDto(address));
 
+                if (locationResult == null)
+                {
+                    return new LookupAddressResponse
+                    { 
+                        ErrorMessage = $"Failed to get location for {address}"
+                    };
+                }
+
                 Cache.Add(new CacheEntry(address, DateTime.UtcNow, locationResult));
 
                 return locationResult;
@@ -95,6 +103,14 @@ namespace FM.GeoLocation.Client
                                 retryCount);
                         })
                     .ExecuteAsync(async () => await GetGeoLocationBatchDto(addresses));
+
+                if (locationResult == null)
+                {
+                    return new LookupAddressBatchResponse
+                    { 
+                        ErrorMessage = $"Failed to get locations for {addresses}"
+                    };
+                }
 
                 return locationResult;
             }
@@ -136,6 +152,14 @@ namespace FM.GeoLocation.Client
                                 retryCount);
                         })
                     .ExecuteAsync(async () => await RemoveAddressData(address));
+
+                if (removeDataResponse == null)
+                {
+                    return new RemoveDataForAddressResponse
+                    {
+                        ErrorMessage = $"Failed remove data for {address}"
+                    };
+                }
 
                 return removeDataResponse;
             }
