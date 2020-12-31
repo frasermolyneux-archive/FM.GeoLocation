@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FM.GeoLocation.Contract.Interfaces;
@@ -32,7 +33,7 @@ namespace FM.GeoLocation.Client
             {
                 return new LookupAddressResponse
                 {
-                    ErrorMessage = "Lookup address is null or empty"
+                    ErrorMessage = "The lookup address is null or empty"
                 };
             }
 
@@ -42,7 +43,7 @@ namespace FM.GeoLocation.Client
 
                 if (cachedEntry?.Created > DateTime.UtcNow.AddMinutes(-_options.CacheEntryLifeInMinutes))
                 {
-                    _logger?.LogDebug("Returning location for {address} from memory cache", address);
+                    _logger?.LogDebug("Returning location for '{address}' from memory cache", address);
                     return cachedEntry.LookupAddressResponse;
                 }
 
@@ -55,7 +56,7 @@ namespace FM.GeoLocation.Client
                     .WaitAndRetryAsync(_options.RetryTimespans,
                         (result, timeSpan, retryCount, context) =>
                         {
-                            _logger?.LogWarning("Failed to get location for {address} - retry count: {count}", address,
+                            _logger?.LogWarning("Failed to get location for '{address}' - retry count: '{count}'", address,
                                 retryCount);
                         })
                     .ExecuteAsync(async () => await GetGeoLocationDto(address));
@@ -64,7 +65,7 @@ namespace FM.GeoLocation.Client
                 {
                     return new LookupAddressResponse
                     { 
-                        ErrorMessage = $"Failed to get location for {address}"
+                        ErrorMessage = $"Failed to get location for address '{address}'"
                     };
                 }
 
@@ -72,9 +73,9 @@ namespace FM.GeoLocation.Client
 
                 return locationResult;
             }
-            catch (Exception ex)
+            catch (ApplicationException ex)
             {
-                _logger?.LogError(ex, "Failed to get location for address {address}", address);
+                _logger?.LogError(ex, "Application exception getting location for address '{address}'", address);
 
                 if (_options.BubbleExceptions)
                 {
@@ -84,7 +85,23 @@ namespace FM.GeoLocation.Client
                 {
                     return new LookupAddressResponse()
                     {
-                        ErrorMessage = $"Failed to lookup address {address} data"
+                        ErrorMessage = ex.Message
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Exception getting location for address '{address}'", address);
+
+                if (_options.BubbleExceptions)
+                {
+                    throw ex;
+                }
+                else
+                {
+                    return new LookupAddressResponse()
+                    {
+                        ErrorMessage = $"Exception getting location for address '{address}'"
                     };
                 }
             }
@@ -98,9 +115,7 @@ namespace FM.GeoLocation.Client
                     .WaitAndRetryAsync(_options.RetryTimespans,
                         (result, timeSpan, retryCount, context) =>
                         {
-                            _logger?.LogWarning("Failed to get locations for {addresses} - retry count: {count}",
-                                addresses,
-                                retryCount);
+                            _logger?.LogWarning("Failed to get locations for address batch - retry count: '{count}'", retryCount);
                         })
                     .ExecuteAsync(async () => await GetGeoLocationBatchDto(addresses));
 
@@ -108,15 +123,15 @@ namespace FM.GeoLocation.Client
                 {
                     return new LookupAddressBatchResponse
                     { 
-                        ErrorMessage = $"Failed to get locations for {addresses}"
+                        ErrorMessage = $"Failed to get locations for address batch"
                     };
                 }
 
                 return locationResult;
             }
-            catch (Exception ex)
+            catch (ApplicationException ex)
             {
-                _logger?.LogError(ex, "Failed to get locations for addresses {addresses}", addresses);
+                _logger?.LogError(ex, "Application exception getting locations for address batch");
 
                 if (_options.BubbleExceptions)
                 {
@@ -126,7 +141,23 @@ namespace FM.GeoLocation.Client
                 {
                     return new LookupAddressBatchResponse()
                     {
-                        ErrorMessage = $"Failed to lookup locations for address batch"
+                        ErrorMessage = ex.Message
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Exception getting locations for address batch");
+
+                if (_options.BubbleExceptions)
+                {
+                    throw ex;
+                }
+                else
+                {
+                    return new LookupAddressBatchResponse()
+                    {
+                        ErrorMessage = "Exception getting locations for address batch"
                     };
                 }
             }
@@ -148,7 +179,7 @@ namespace FM.GeoLocation.Client
                     .WaitAndRetryAsync(_options.RetryTimespans,
                         (result, timeSpan, retryCount, context) =>
                         {
-                            _logger?.LogWarning("Failed remove data for {address} - retry count: {count}", address,
+                            _logger?.LogWarning("Failed to remove data for '{address}' - retry count: '{count}'", address,
                                 retryCount);
                         })
                     .ExecuteAsync(async () => await RemoveAddressData(address));
@@ -157,15 +188,15 @@ namespace FM.GeoLocation.Client
                 {
                     return new RemoveDataForAddressResponse
                     {
-                        ErrorMessage = $"Failed remove data for {address}"
+                        ErrorMessage = $"Failed to remove data for '{address}'"
                     };
                 }
 
                 return removeDataResponse;
             }
-            catch (Exception ex)
+            catch(ApplicationException ex)
             {
-                _logger?.LogError(ex, "Failed to remove data for address {address}", address);
+                _logger?.LogError(ex, "Application exception removing data for address '{address}'", address);
 
                 if (_options.BubbleExceptions)
                 {
@@ -175,7 +206,23 @@ namespace FM.GeoLocation.Client
                 {
                     return new RemoveDataForAddressResponse()
                     {
-                        ErrorMessage = $"Failed to remove address {address} data"
+                        ErrorMessage = ex.Message
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Exception removing data for address '{address}'", address);
+
+                if (_options.BubbleExceptions)
+                {
+                    throw ex;
+                }
+                else
+                {
+                    return new RemoveDataForAddressResponse()
+                    {
+                        ErrorMessage = $"Exception removing data for address '{address}'"
                     };
                 }
             }
@@ -189,13 +236,18 @@ namespace FM.GeoLocation.Client
                 _logger?.LogDebug($"Request Uri: {requestUri}");
 
                 var response = await client.PostAsync(requestUri, null);
-                _logger?.LogDebug($"Response Code: {response.StatusCode}");
+                _logger?.LogDebug($"Response Code: '{response.StatusCode}'");
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Failed to get address data for '{address}' with '{response.StatusCode}' response");
+                }
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                _logger?.LogDebug($"Response Text: {responseText}");
+                _logger?.LogDebug($"Response Text: '{responseText}'");
 
                 var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressResponse>(responseText);
-                _logger?.LogInformation("{@location} retrieved for {address}", deserializeResponse, address);
+                _logger?.LogInformation("'{@location}' retrieved for '{address}'", deserializeResponse, address);
 
                 return deserializeResponse;
             }
@@ -208,16 +260,21 @@ namespace FM.GeoLocation.Client
                 var addressesJson = JsonConvert.SerializeObject(addresses);
 
                 var requestUri = $"{_options.BaseUrl}/api/LookupAddressBatch?code={_options.ApiKey}";
-                _logger?.LogDebug($"Request Uri: {requestUri}");
+                _logger?.LogDebug($"Request Uri: '{requestUri}'");
 
                 var response = await client.PostAsync(requestUri, new StringContent(addressesJson));
-                _logger?.LogDebug($"Response Code: {response.StatusCode}");
+                _logger?.LogDebug($"Response Code: '{response.StatusCode}'");
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Failed to get batch location data for with '{response.StatusCode}' response");
+                }
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                _logger?.LogDebug($"Response Text: {responseText}");
+                _logger?.LogDebug($"Response Text: '{responseText}'");
 
                 var deserializeResponse = JsonConvert.DeserializeObject<LookupAddressBatchResponse>(responseText);
-                _logger?.LogInformation("{@locations} retrieved for {addresses}", deserializeResponse, addresses);
+                _logger?.LogInformation("'{@locations}' retrieved for '{addresses}'", deserializeResponse, addresses);
 
                 return deserializeResponse;
             }
@@ -228,16 +285,21 @@ namespace FM.GeoLocation.Client
             using (var client = new HttpClient())
             {
                 var requestUri = $"{_options.BaseUrl}/api/RemoveDataForAddress?code={_options.ApiKey}&address={address}";
-                _logger?.LogDebug($"Request Uri: {requestUri}");
+                _logger?.LogDebug($"Request Uri: '{requestUri}'");
 
                 var response = await client.DeleteAsync(requestUri);
-                _logger?.LogDebug($"Response Code: {response.StatusCode}");
+                _logger?.LogDebug($"Response Code: '{response.StatusCode}'");
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Failed to remove address data for '{address}' with '{response.StatusCode}' response");
+                }
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                _logger?.LogDebug($"Response Text: {responseText}");
+                _logger?.LogDebug($"Response Text: '{responseText}'");
 
                 var deserializeResponse = JsonConvert.DeserializeObject<RemoveDataForAddressResponse>(responseText);
-                _logger?.LogInformation("{@location} retrieved for {address}", deserializeResponse, address);
+                _logger?.LogInformation("'{@location}' retrieved for '{address}'", deserializeResponse, address);
 
                 return deserializeResponse;
             }
