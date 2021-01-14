@@ -83,21 +83,21 @@ namespace FM.GeoLocation.FuncApp
                 model.GeoLocationDto = new GeoLocationDto
                 {
                     Address = address,
-                    TranslatedAddress = location.RowKey,
+                    TranslatedAddress = location.RowKey ?? string.Empty,
 
-                    ContinentCode = location.ContinentCode,
-                    ContinentName = location.ContinentName,
-                    CountryCode = location.CountryCode,
-                    CountryName = location.CountryName,
+                    ContinentCode = location.ContinentCode ?? string.Empty,
+                    ContinentName = location.ContinentName ?? string.Empty,
+                    CountryCode = location.CountryCode ?? string.Empty,
+                    CountryName = location.CountryName ?? string.Empty,
                     IsEuropeanUnion = location.IsEuropeanUnion,
-                    CityName = location.CityName,
-                    PostalCode = location.PostalCode,
-                    RegisteredCountry = location.RegisteredCountry,
-                    RepresentedCountry = location.RepresentedCountry,
+                    CityName = location.CityName ?? string.Empty,
+                    PostalCode = location.PostalCode ?? string.Empty,
+                    RegisteredCountry = location.RegisteredCountry ?? string.Empty,
+                    RepresentedCountry = location.RepresentedCountry ?? string.Empty,
                     Latitude = location.Latitude,
                     Longitude = location.Longitude,
                     AccuracyRadius = location.AccuracyRadius,
-                    Timezone = location.Timezone,
+                    Timezone = location.Timezone ?? string.Empty,
                     Traits = location.Traits
                 };
 

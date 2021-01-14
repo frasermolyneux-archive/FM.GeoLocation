@@ -57,19 +57,19 @@ namespace FM.GeoLocation.Repositories
                 var geoLocationEntity =
                     new GeoLocationEntity(_partitionKeyHelper.GetPartitionKeyFromAddress(address), address)
                     {
-                        ContinentCode = lookupResult.Continent?.Code,
-                        ContinentName = lookupResult.Continent?.Name,
-                        CountryCode = lookupResult.Country?.IsoCode,
-                        CountryName = lookupResult.Country?.Name,
+                        ContinentCode = lookupResult.Continent?.Code ?? string.Empty,
+                        ContinentName = lookupResult.Continent?.Name ?? string.Empty,
+                        CountryCode = lookupResult.Country?.IsoCode ?? string.Empty,
+                        CountryName = lookupResult.Country?.Name ?? string.Empty,
                         IsEuropeanUnion = lookupResult.Country?.IsInEuropeanUnion ?? false,
-                        CityName = lookupResult.City?.Name,
-                        PostalCode = lookupResult.Postal?.Code,
-                        RegisteredCountry = lookupResult.RegisteredCountry?.IsoCode,
-                        RepresentedCountry = lookupResult.RepresentedCountry?.IsoCode,
+                        CityName = lookupResult.City?.Name ?? string.Empty,
+                        PostalCode = lookupResult.Postal?.Code ?? string.Empty,
+                        RegisteredCountry = lookupResult.RegisteredCountry?.IsoCode ?? string.Empty,
+                        RepresentedCountry = lookupResult.RepresentedCountry?.IsoCode ?? string.Empty,
                         Latitude = lookupResult.Location?.Latitude ?? 0.0,
                         Longitude = lookupResult.Location?.Longitude ?? 0.0,
                         AccuracyRadius = lookupResult.Location?.AccuracyRadius ?? 0,
-                        Timezone = lookupResult.Location?.TimeZone,
+                        Timezone = lookupResult.Location?.TimeZone ?? string.Empty,
                         Traits = traits
                     };
 

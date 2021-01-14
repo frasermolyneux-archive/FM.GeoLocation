@@ -6,6 +6,6 @@
 
         public string ErrorMessage { get; set; } = null;
 
-        public GeoLocationDto GeoLocationDto { get; set; }
+        public GeoLocationDto GeoLocationDto { get; set; } = new GeoLocationDto();
     }
 }
