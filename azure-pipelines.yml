@@ -35,19 +35,20 @@ stages:
       buildConfiguration: 'Release'
 
     steps:
-    - task: DotNetCoreCLI@2
-      displayName: ".NET Core Restore"
+    - task: NuGetToolInstaller@1
+    
+    - task: NuGetCommand@2
       inputs:
+        restoreSolution: '$(solution)'
         command: 'restore'
-        projects: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/FM.GeoLocation.FuncApp.csproj'
-        feedsToUse: 'select'
+        feedsToUse: 'config'
+        nugetConfigPath: './src/nuget.config'
 
-    - task: DotNetCoreCLI@2
-      displayName: ".NET Core Build"
+    - task: VSBuild@1
       inputs:
-        command: 'build'
-        projects: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/FM.GeoLocation.FuncApp.csproj'
-        arguments: '-c Release'
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
 
     - task: CopyFiles@2
       displayName: 'Copy terraform folder into staging directory'
