@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using FM.GeoLocation.Repositories.Attributes;
-using Microsoft.Azure.Cosmos.Table;
+using FM.AzureTableExtensions.Library;
+using FM.AzureTableExtensions.Library.Attributes;
 
 namespace FM.GeoLocation.Repositories.Models
 {
-    public class GeoLocationEntity : TableEntity
+    public class GeoLocationEntity : TableEntityExtended
     {
         public GeoLocationEntity()
         {
@@ -32,19 +32,5 @@ namespace FM.GeoLocation.Repositories.Models
         public string Timezone { get; set; }
 
         [EntityJsonPropertyConverter] public Dictionary<string, string> Traits { get; set; }
-
-        public override IDictionary<string, EntityProperty> WriteEntity(OperationContext operationContext)
-        {
-            var results = base.WriteEntity(operationContext);
-            EntityJsonPropertyConverter.Serialize(this, results);
-            return results;
-        }
-
-        public override void ReadEntity(IDictionary<string, EntityProperty> properties,
-            OperationContext operationContext)
-        {
-            base.ReadEntity(properties, operationContext);
-            EntityJsonPropertyConverter.Deserialize(this, properties);
-        }
     }
 }
