@@ -1,8 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <UserSecretsId>05d27e9c-4414-41e6-a82f-e4afd9f09204</UserSecretsId>
+    <Authors>Fraser Molynex</Authors>
+    <Product>FM GeoLocation Client</Product>
+    <Description>This package provides web service client to query the geolocation service.</Description>
+    <Copyright>GNUv3</Copyright>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/frasermolyneux/FM.GeoLocation</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/frasermolyneux/FM.GeoLocation</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
