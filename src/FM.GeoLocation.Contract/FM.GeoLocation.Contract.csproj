@@ -1,7 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <Authors>Fraser Molynex</Authors>
+    <Product>FM GeoLocation Contract</Product>
+    <Description>This package provides a contract to query the geolocation service.</Description>
+    <Copyright>GNUv3</Copyright>
+    <PackageProjectUrl>https://github.com/frasermolyneux/FM.GeoLocation</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/frasermolyneux/FM.GeoLocation</RepositoryUrl>
   </PropertyGroup>
 
 </Project>
