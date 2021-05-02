@@ -359,7 +359,7 @@ namespace FM.GeoLocation.Client
                 var requestUri = $"{_options.BaseUrl}/api/HealthCheck?code={_options.ApiKey}";
                 _logger?.LogDebug($"Request Uri: '{requestUri}'");
 
-                var response = await client.DeleteAsync(requestUri);
+                var response = await client.GetAsync(requestUri);
                 _logger?.LogDebug($"Response Code: '{response.StatusCode}'");
 
                 if (response.StatusCode != HttpStatusCode.OK)
