@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FM.GeoLocation.Repositories.Models;
 using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Extensions.Options;
 
 namespace FM.GeoLocation.Repositories
 {
@@ -10,14 +11,14 @@ namespace FM.GeoLocation.Repositories
         private readonly IPartitionKeyHelper _partitionKeyHelper;
 
         public LocationsRepository(
-            ITableStorageConfiguration tableStorageConfiguration,
+            IOptions<AppDataOptions> options,
             IPartitionKeyHelper partitionKeyHelper)
         {
-            var storageAccount = CloudStorageAccount.Parse(tableStorageConfiguration.TableStorageConnectionString);
+            var storageAccount = CloudStorageAccount.Parse(options.Value.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
-            LocationsTable = cloudTableClient.GetTableReference("locationsv2");
-            LocationsTable.CreateIfNotExistsAsync().RunSynchronously();
+            LocationsTable = cloudTableClient.GetTableReference(options.Value.LocationsTableName);
+            LocationsTable.CreateIfNotExists();
 
             _partitionKeyHelper = partitionKeyHelper ?? throw new ArgumentNullException(nameof(partitionKeyHelper));
         }

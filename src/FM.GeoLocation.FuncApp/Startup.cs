@@ -30,7 +30,10 @@ namespace FM.GeoLocation.FuncApp
 
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddSingleton<ITableStorageConfiguration, TableStorageConfiguration>();
+            var config = builder.GetContext().Configuration;
+
+            builder.Services.Configure<AppDataOptions>(config.GetSection("AppData"));
+
             builder.Services.AddSingleton<ILocationsRepository, LocationsRepository>();
             builder.Services.AddSingleton<IPartitionKeyHelper, PartitionKeyHelper>();
             builder.Services.AddSingleton<IMaxMindApiConfiguration, MaxMindApiConfiguration>();
