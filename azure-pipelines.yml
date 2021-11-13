@@ -16,7 +16,7 @@ pool:
 variables:
   versionMajor: 1
   versionMinor: 0
-  TerraformVersion: '0.14.8'
+  TerraformVersion: '1.0.11'
   AzTerraformRegion: 'uksouth'
   AzTerraformResourceGroup: 'fm-geolocation-terraform'
   AzTerraformStorageAccount: 'fmgeolocationtfstate'
