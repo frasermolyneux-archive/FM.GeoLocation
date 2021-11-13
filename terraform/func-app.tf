@@ -23,5 +23,10 @@ resource "azurerm_function_app" "function-app" {
     resource_group_name = azurerm_resource_group.resource-group.name
     storage_connection_string = azurerm_storage_account.funcapp-storage-account.primary_connection_string
     app_service_plan_id = azurerm_app_service_plan.funcapp-service-plan.id
-    version = "~3"
+
+    version = "~4"
+
+    site_config {
+      dotnet_framework_version = "v6.0"
+    }
 }
