@@ -69,7 +69,7 @@ stages:
     - task: ArchiveFiles@2
       displayName: "Package FM.GeoLocation.FuncApp to artifact staging directory"
       inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/bin/Release/netcoreapp3.1/'
+        rootFolderOrFile: '$(Build.SourcesDirectory)/src/FM.GeoLocation.FuncApp/bin/Release/net6.0/'
         includeRootFolder: false
         archiveType: 'zip'
         archiveFile: '$(Build.ArtifactStagingDirectory)/FM.GeoLocation.FuncApp.zip'
