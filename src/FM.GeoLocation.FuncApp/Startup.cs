@@ -22,7 +22,7 @@ namespace FM.GeoLocation.FuncApp
                 .AddJsonFile(Path.Combine(context.ApplicationRootPath, "appsettings.json"), true, false)
                 .AddJsonFile(Path.Combine(context.ApplicationRootPath, $"appsettings.{context.EnvironmentName}.json"),
                     true, false)
-                .AddUserSecrets(Assembly.GetExecutingAssembly(), false)
+                .AddUserSecrets(Assembly.GetExecutingAssembly(), true)
                 .AddEnvironmentVariables();
 
             base.ConfigureAppConfiguration(builder);
