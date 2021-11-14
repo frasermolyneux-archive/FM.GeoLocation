@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FM.AzureTableExtensions.Library" Version="1.0.4879" />
+    <PackageReference Include="FM.AzureTableExtensions.Library" Version="1.0.4898" />
     <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
     <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
